@@ -83,48 +83,88 @@ def main():
         if not uploaded_files:
             st.warning("There are no files to process")
         elif not applicant_name:
-            st.warning("Applicant's name has not been entered")  
+            st.warning("Applicant's name has not been entered")
         else:
             with st.spinner("Processing files..."):
-                # Setup folder structure
+                # Setup folder structure within current repo
                 base_dir = "scraped_info"
                 applicant_dir = os.path.join(base_dir, applicant_name)
                 os.makedirs(applicant_dir, exist_ok=True)
                 
-                # Process each file
+                # Process each file (same as before)
                 for uploaded_file in uploaded_files:
                     # Save original file
                     original_path = os.path.join(applicant_dir, uploaded_file.name)
                     with open(original_path, "wb") as f:
                         f.write(uploaded_file.getbuffer())
                     
-                    # Extract text based on file type
+                    # Extract text and save (same as before)
                     file_ext = uploaded_file.name.split(".")[-1].lower()
                     try:
                         if file_ext == "docx":
                             text = extract_docx(original_path)
                         elif file_ext == "pdf":
                             text = extract_pdf(original_path)
-                        else:  # txt
+                        else:
                             text = extract_txt(original_path)
                         
-                        # Save extracted text
                         text_filename = f"{os.path.splitext(uploaded_file.name)[0]}.txt"
                         text_path = os.path.join(applicant_dir, text_filename)
                         with open(text_path, "w") as f:
                             f.write(text)
-                        
+                            
                     except Exception as e:
                         st.error(f"Error processing {uploaded_file.name}: {str(e)}")
                 
                 st.session_state.processed = True
                 st.success(f"Processed {len(uploaded_files)} files for {applicant_name}!")
+
+    # if st.button("Process Files"):
+    #     if not uploaded_files:
+    #         st.warning("There are no files to process")
+    #     elif not applicant_name:
+    #         st.warning("Applicant's name has not been entered")  
+    #     else:
+    #         with st.spinner("Processing files..."):
+    #             # Setup folder structure
+    #             base_dir = "scraped_info"
+    #             applicant_dir = os.path.join(base_dir, applicant_name)
+    #             os.makedirs(applicant_dir, exist_ok=True)
+                
+    #             # Process each file
+    #             for uploaded_file in uploaded_files:
+    #                 # Save original file
+    #                 original_path = os.path.join(applicant_dir, uploaded_file.name)
+    #                 with open(original_path, "wb") as f:
+    #                     f.write(uploaded_file.getbuffer())
+                    
+    #                 # Extract text based on file type
+    #                 file_ext = uploaded_file.name.split(".")[-1].lower()
+    #                 try:
+    #                     if file_ext == "docx":
+    #                         text = extract_docx(original_path)
+    #                     elif file_ext == "pdf":
+    #                         text = extract_pdf(original_path)
+    #                     else:  # txt
+    #                         text = extract_txt(original_path)
+                        
+    #                     # Save extracted text
+    #                     text_filename = f"{os.path.splitext(uploaded_file.name)[0]}.txt"
+    #                     text_path = os.path.join(applicant_dir, text_filename)
+    #                     with open(text_path, "w") as f:
+    #                         f.write(text)
+                        
+    #                 except Exception as e:
+    #                     st.error(f"Error processing {uploaded_file.name}: {str(e)}")
+                
+    #             st.session_state.processed = True
+    #             st.success(f"Processed {len(uploaded_files)} files for {applicant_name}!")
     
     # GitHub integration
     if st.session_state.processed:
         st.divider()
         st.subheader("GitHub Integration")
-        
+
         if st.button("Push to GitHub"):
             with st.spinner("Pushing to GitHub..."):
                 try:
@@ -134,13 +174,31 @@ def main():
                     
                     if st.session_state.repo:
                         repo = st.session_state.repo
-                        repo.git.add("--all")
-                        repo.index.commit("Add processed files")
+                        repo.git.add("scraped_info/")  # Add only the scraped_info folder
+                        repo.index.commit("Add new applicant files")
                         origin = repo.remote(name="origin")
                         origin.push()
                         st.success("Files pushed to GitHub repository!")
                 except Exception as e:
                     st.error(f"Push failed: {str(e)}")
+
+        
+        # if st.button("Push to GitHub"):
+        #     with st.spinner("Pushing to GitHub..."):
+        #         try:
+        #             # Initialize repo if not already set up
+        #             if not st.session_state.repo:
+        #                 st.session_state.repo = setup_git_repo()
+                    
+        #             if st.session_state.repo:
+        #                 repo = st.session_state.repo
+        #                 repo.git.add("--all")
+        #                 repo.index.commit("Add processed files")
+        #                 origin = repo.remote(name="origin")
+        #                 origin.push()
+        #                 st.success("Files pushed to GitHub repository!")
+        #         except Exception as e:
+        #             st.error(f"Push failed: {str(e)}")
         
         # Display folder structure
         st.subheader("Folder Structure")
