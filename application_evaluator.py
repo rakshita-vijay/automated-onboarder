@@ -69,9 +69,8 @@ def main():
     if st.button("Process Files"):
         if not uploaded_files:
             st.warning("There are no files to process")
-        if not applicant_name:
-            st.warning("Applicant's name has not been entered") 
-
+        elif not applicant_name:
+            st.warning("Applicant's name has not been entered")  
         else:
             with st.spinner("Processing files..."):
                 # Setup folder structure
