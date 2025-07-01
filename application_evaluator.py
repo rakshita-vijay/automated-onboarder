@@ -4,8 +4,7 @@ st.title("📄 Document Uploader")
 
 st.write("Upload one or more files (DOCX, PDF, or TXT) by dragging and dropping or using the 'Browse files' button below.")
 
-uploaded_files = st.file_uploader(
-    "Choose files",
+uploaded_files = st.file_uploader( 
     type=["docx", "pdf", "txt"],
     accept_multiple_files=True,
     help="Only .docx, .pdf, or .txt files are allowed."
