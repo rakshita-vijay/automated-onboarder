@@ -157,7 +157,7 @@ def main():
         scraped_info_path = "scraped_info"
         if os.path.exists(scraped_info_path):
             tree_data = build_tree(scraped_info_path)
-            selected = tree_select(tree_data, checkbox=False, expand_all=True)
+            selected = tree_select(tree_data, checkbox=False)
             # Display the selected file/folder if needed
             if selected:
                 st.write("Selected:", selected)
