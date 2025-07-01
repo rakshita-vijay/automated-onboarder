@@ -1,6 +1,3 @@
-
-
-
 css = """
 <style>
 /* ===== BODY & GENERAL LAYOUT ===== */
@@ -110,16 +107,16 @@ css = """
 }
 
 /* ===== FILE UPLOADER DROPZONE TEXT ===== */
-/* Light Mode: Black text */
+/* Light Mode: Black text */Add commentMore actions
 @media (prefers-color-scheme: light) {
     [data-testid="stFileUploaderDropzone"] * {
-        color: #111 !important;
+        color: #000 !important;
         opacity: 1 !important;
         text-shadow: none !important;
     }
     [data-testid="stFileUploader"] button {
         color: #000 !important; /* ADDED: Black button text */
-        border-color: #111 !important; /* ADDED: Black button border */
+        border-color: #000 !important; /* ADDED: Black button border */
         background-color: #fff !important; /* ADDED: White button background */
     }
 }
@@ -143,10 +140,10 @@ css = """
     [data-testid="stFileUploader"] .uploadedFile,
     [data-testid="stFileUploader"] [data-testid="fileStatus"],
     [data-testid="stFileUploader"] div[data-testid="stFileUploaderDropzone"] + div {
-        background-color: #fff !important;
-        color: #111 !important;
-        border: 1px solid #111 !important; /* ADDED: Black border */
-        border-radius: 8px !important;
+        background-color: #ffffff !important;
+        color: #000 !important;
+        border: 1px solid #000 !important; /* ADDED: Black border */
+        border-radius: 8px !important; 
         padding: 8px !important;
         margin: 5px 0 !important;
     }
