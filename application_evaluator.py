@@ -7,26 +7,36 @@ from docx import Document
 from pypdf import PdfReader
 import tempfile
 
-# Initialize GitHub repository
 def setup_git_repo():
-    GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
-    repo_url = f"https://rakshita-vijay:{GITHUB_TOKEN}@github.com/rakshita-vijay/automated-onboarder.git" 
-    repo_path = "scraped_info"
-    
     try:
-        if os.path.exists(repo_path) and not os.path.exists(os.path.join(repo_path, ".git")):
-            shutil.rmtree(repo_path)
-        if not os.path.exists(repo_path):
-            repo = git.Repo.clone_from(repo_url, repo_path)
-            st.success("Cloned GitHub repository successfully!")
-        else:
-            repo = git.Repo(repo_path)
-            repo.remotes.origin.pull()
-            st.success("Updated existing repository!")
+        # Initialize git repo in current directory (if not already)
+        repo = git.Repo(".")  # Use current directory, not scraped_info
+        st.success("Using existing Git repository!")
         return repo
-    except git.exc.GitCommandError as e:
-        st.error(f"GitHub error: {str(e)}")
+    except git.exc.InvalidGitRepositoryError:
+        st.error("Not in a Git repository. Make sure you're running from your repo directory.")
         return None
+
+# Initialize GitHub repository
+# def setup_git_repo():
+#     GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
+#     repo_url = f"https://rakshita-vijay:{GITHUB_TOKEN}@github.com/rakshita-vijay/automated-onboarder.git" 
+#     repo_path = "scraped_info"
+    
+#     try:
+#         if os.path.exists(repo_path) and not os.path.exists(os.path.join(repo_path, ".git")):
+#             shutil.rmtree(repo_path)
+#         if not os.path.exists(repo_path):
+#             repo = git.Repo.clone_from(repo_url, repo_path)
+#             st.success("Cloned GitHub repository successfully!")
+#         else:
+#             repo = git.Repo(repo_path)
+#             repo.remotes.origin.pull()
+#             st.success("Updated existing repository!")
+#         return repo
+#     except git.exc.GitCommandError as e:
+#         st.error(f"GitHub error: {str(e)}")
+#         return None
 
 # File processing functions
 def extract_docx(file_path):
