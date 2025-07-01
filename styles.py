@@ -51,5 +51,16 @@ h1, .stTitle {
     padding: 1em;
     margin-bottom: 1em;
 }
+[data-testid="stFileUploader"] > div > div {
+    background-color: #f0f9ff !important; /* baby blue */
+    border-radius: 10px !important;
+} 
+[data-testid="stTextInput"] input {
+    background-color: #f0f9ff !important; /* baby blue */
+    border-radius: 10px !important;
+    border: 1px solid #a5b4fc !important;
+    padding: 8px !important;
+    color: #222 !important;
+}
 </style>
 """
