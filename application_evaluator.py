@@ -62,6 +62,7 @@ def main():
     
     # File uploader 
     uploaded_files = st.file_uploader(
+        "Upload files",
         label_visibility="collapsed",
         type=["docx", "pdf", "txt"],
         accept_multiple_files=True,
