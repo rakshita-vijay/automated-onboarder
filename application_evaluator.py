@@ -7,7 +7,7 @@ from docx import Document
 from pypdf import PdfReader
 import tempfile
 import pandas as pd
-from streamlit-tree-selector import tree_select
+from streamlit_tree_selector import tree_select
 
 from styles import css 
 st.markdown(css, unsafe_allow_html=True) 
