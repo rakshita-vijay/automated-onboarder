@@ -1,5 +1,5 @@
 streamlit>=1.25.0  
 pypdf
 python-docx
-streamlit-tree-select
+streamlit-tree-selector
 pandas
