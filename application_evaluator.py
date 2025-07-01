@@ -65,7 +65,13 @@ def main():
     # Applicant name input
     applicant_name = st.text_input("Applicant Name", 
                                  placeholder="Enter applicant name for these files")
-    
+
+    if st.button("Process Files") and not (uploaded_files and applicant_name):
+        if not uploaded_files:
+            st.text("There are no files to process")
+        else:
+            st.text("Applicant's name has not been entered") 
+            
     if st.button("Process Files") and uploaded_files and applicant_name:
         with st.spinner("Processing files..."):
             # Setup folder structure
