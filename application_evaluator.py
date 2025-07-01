@@ -68,9 +68,9 @@ def main():
 
     if st.button("Process Files") and not (uploaded_files and applicant_name):
         if not uploaded_files:
-            st.text("There are no files to process")
+            st.error("There are no files to process")
         else:
-            st.text("Applicant's name has not been entered") 
+            st.error("Applicant's name has not been entered") 
             
     if st.button("Process Files") and uploaded_files and applicant_name:
         with st.spinner("Processing files..."):
