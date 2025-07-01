@@ -4,6 +4,7 @@ st.title("📄 Document Uploader")
 
 st.write("Upload a file (DOCX, PDF, or TXT) by dragging and dropping or using the 'Browse files' button below.")
 
+uploaded_file = None
 uploaded_file = st.file_uploader(
     "Choose a file",
     type=["docx", "pdf", "txt"],
