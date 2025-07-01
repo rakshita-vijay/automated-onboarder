@@ -1,0 +1,15 @@
+Brain -
+Computer
+Bringing Minds and Machines
+Interfaces (BCIs)
+Swipe to Learn
+How BCIs Connect Brainand Machine
+Although still experimental, Brain-Computer Interfaces haverevolutionized our outlook on the future, especially forspecially-abled individuals. First conceived in the 1920s,BCIs enable direct communication between a human’sbrain and a computer, allowing users to control machineswith their thoughts. By placing electrodes close to thesynapses—the gaps between neurons—BCIs detect thefrequency and intensity of each spike as neurons fireelectrical-chemical signals. This technology is not onlygroundbreaking for people with severe neuromusculardisabilities, but also holds promise for national defense,such as hands-free drone control, and is being explored incountless other fields.
+
+Implanted vs. WearableBCIs
+Researchers have divided BCIs into two main types for easierexploration: implanted and wearable devices. Implanted BCIsare surgically attached to brain tissue, making them suitable forusers with severe disabilities or physical injuries—likeparaplegics who could regain motor capabilities by linking theBCI to specific neurons. While these devices provide precisecontrol by measuring brain signals directly, they also carrysignificant surgical and post-surgical risks. Wearable BCIs, onthe other hand, use conductor-bearing caps to measure brainactivity from the scalp, making them ideal for applications likevirtual gaming, augmented reality, and external machinecontrol where a small margin of error is acceptable.
+Swipe to Learn
+Link in Bio
+Want to Learn
+More?
+Check out the full article on the ACMblog!
