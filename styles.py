@@ -50,11 +50,7 @@ h1, .stTitle {
     box-shadow: 0 2px 8px #dbeafe;
     padding: 1em;
     margin-bottom: 1em;
-} 
-</style>
-"""
-css_code = """
-<style>
+}  
 /* File uploader area */
 [data-testid="stFileUploader"] > div > div {
     background-color: #e6f7ff !important;
