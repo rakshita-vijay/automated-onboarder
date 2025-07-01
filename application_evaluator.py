@@ -19,28 +19,7 @@ def setup_git_repo():
         return repo
     except git.exc.InvalidGitRepositoryError:
         st.error("Not in a Git repository. Make sure you're running from your repo directory.")
-        return None
-
-# Initialize GitHub repository
-# def setup_git_repo():
-#     GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
-#     repo_url = f"https://rakshita-vijay:{GITHUB_TOKEN}@github.com/rakshita-vijay/automated-onboarder.git" 
-#     repo_path = "scraped_info"
-    
-#     try:
-#         if os.path.exists(repo_path) and not os.path.exists(os.path.join(repo_path, ".git")):
-#             shutil.rmtree(repo_path)
-#         if not os.path.exists(repo_path):
-#             repo = git.Repo.clone_from(repo_url, repo_path)
-#             st.success("Cloned GitHub repository successfully!")
-#         else:
-#             repo = git.Repo(repo_path)
-#             repo.remotes.origin.pull()
-#             st.success("Updated existing repository!")
-#         return repo
-#     except git.exc.GitCommandError as e:
-#         st.error(f"GitHub error: {str(e)}")
-#         return None
+        return None 
 
 # File processing functions
 def extract_docx(file_path):
@@ -121,48 +100,7 @@ def main():
                         st.error(f"Error processing {uploaded_file.name}: {str(e)}")
                 
                 st.session_state.processed = True
-                st.success(f"Processed {len(uploaded_files)} files for {applicant_name}!")
-
-    # if st.button("Process Files"):
-    #     if not uploaded_files:
-    #         st.warning("There are no files to process")
-    #     elif not applicant_name:
-    #         st.warning("Applicant's name has not been entered")  
-    #     else:
-    #         with st.spinner("Processing files..."):
-    #             # Setup folder structure
-    #             base_dir = "scraped_info"
-    #             applicant_dir = os.path.join(base_dir, applicant_name)
-    #             os.makedirs(applicant_dir, exist_ok=True)
-                
-    #             # Process each file
-    #             for uploaded_file in uploaded_files:
-    #                 # Save original file
-    #                 original_path = os.path.join(applicant_dir, uploaded_file.name)
-    #                 with open(original_path, "wb") as f:
-    #                     f.write(uploaded_file.getbuffer())
-                    
-    #                 # Extract text based on file type
-    #                 file_ext = uploaded_file.name.split(".")[-1].lower()
-    #                 try:
-    #                     if file_ext == "docx":
-    #                         text = extract_docx(original_path)
-    #                     elif file_ext == "pdf":
-    #                         text = extract_pdf(original_path)
-    #                     else:  # txt
-    #                         text = extract_txt(original_path)
-                        
-    #                     # Save extracted text
-    #                     text_filename = f"{os.path.splitext(uploaded_file.name)[0]}.txt"
-    #                     text_path = os.path.join(applicant_dir, text_filename)
-    #                     with open(text_path, "w") as f:
-    #                         f.write(text)
-                        
-    #                 except Exception as e:
-    #                     st.error(f"Error processing {uploaded_file.name}: {str(e)}")
-                
-    #             st.session_state.processed = True
-    #             st.success(f"Processed {len(uploaded_files)} files for {applicant_name}!")
+                st.success(f"Processed {len(uploaded_files)} files for {applicant_name}!") 
     
     # GitHub integration
     if st.session_state.processed:
@@ -184,25 +122,7 @@ def main():
                         origin.push()
                         st.success("Files pushed to GitHub repository!")
                 except Exception as e:
-                    st.error(f"Push failed: {str(e)}")
-
-        
-        # if st.button("Push to GitHub"):
-        #     with st.spinner("Pushing to GitHub..."):
-        #         try:
-        #             # Initialize repo if not already set up
-        #             if not st.session_state.repo:
-        #                 st.session_state.repo = setup_git_repo()
-                    
-        #             if st.session_state.repo:
-        #                 repo = st.session_state.repo
-        #                 repo.git.add("--all")
-        #                 repo.index.commit("Add processed files")
-        #                 origin = repo.remote(name="origin")
-        #                 origin.push()
-        #                 st.success("Files pushed to GitHub repository!")
-        #         except Exception as e:
-        #             st.error(f"Push failed: {str(e)}")
+                    st.error(f"Push failed: {str(e)}") 
         
         # Display folder structure
         st.subheader("Folder Structure")
