@@ -18,16 +18,32 @@ css = """
 
 /* ===== TEXT INPUT FIELDS ===== */
 @media (prefers-color-scheme: light) {
-    [data-testid="stTextInput"] input {
+    /*[data-testid="stTextInput"] input {
         background-color: #ffffff !important;
         color: #000 !important;
         border: 1.5px solid #000 !important;
         border-radius: 10px !important;
         font-size: 1.1rem !important;
+    }*/
+    [data-testid="stTextInput"] input {
+        background-color: #e6f7ff !important;
+        border-radius: 10px !important;
+        color: #222 !important;
+        border: 1.5px solid #a5b4fc !important;
+        font-size: 1.1rem !important;
     }
     [data-testid="stTextInput"] input::placeholder { color: #666 !important; opacity: 1 !important; font-style: italic; }
     [data-testid="stTextInput"] label { color: #000 !important; font-weight: bold; }
 }
+
+[data-testid="stTextInput"] input {
+    background-color: #e6f7ff !important;
+    border-radius: 10px !important;
+    color: #222 !important;
+    border: 1.5px solid #a5b4fc !important;
+    font-size: 1.1rem !important;
+}
+
 @media (prefers-color-scheme: dark) {
     [data-testid="stTextInput"] input {
         background-color: #181920 !important;
