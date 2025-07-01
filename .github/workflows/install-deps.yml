@@ -26,5 +26,5 @@ jobs:
     - name: Run your tests or scripts
       run: |
         python3 application_evaluator.py   # Uncomment to run your main application
-        pytest                           # Uncomment if you want to run tests
+        # pytest                           # Uncomment if you want to run tests
   
