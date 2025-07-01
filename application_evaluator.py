@@ -11,7 +11,7 @@ import tempfile
 def setup_git_repo():
     GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
     repo_url = f"https://rakshita-vijay:{GITHUB_TOKEN}@github.com/rakshita-vijay/automated-onboarder.git" 
-    repo_path = "scraped_info"
+    repo_path = "automated-onboarder/scraped_info"
     
     try:
         if not os.path.exists(repo_path):
