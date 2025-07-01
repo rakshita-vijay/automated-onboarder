@@ -7,6 +7,9 @@ from docx import Document
 from pypdf import PdfReader
 import tempfile
 
+from styles import css 
+st.markdown(css, unsafe_allow_html=True)
+
 def setup_git_repo():
     try:
         # Initialize git repo in current directory (if not already)
@@ -36,14 +39,22 @@ def extract_txt(file_path):
         return f.read()
 
 # Streamlit app
-def main():
-    st.title("📄 Document Processing System")
+def main(): 
+    st.markdown(
+        "<h1 style='text-align:center;'>📄✨ Document Processing System ✨📄</h1>",
+        unsafe_allow_html=True
+    ) 
+
     st.markdown("""
-    **Upload files (DOCX, PDF, TXT) to extract text content.**
-    - Files will be processed and organized by applicant
-    - Extracted text saved to structured folders
-    - Results pushed to GitHub repository
-    """)
+    <div style='text-align:center; font-size:1.2em;'>
+        <span>🚀 <b>Upload files (DOCX, PDF, TXT)</b> to <span style='color:#6c63ff;'>extract text content</span>.</span><br>
+        <ul style="list-style: none; padding: 0;">
+            <li>🗂️ Files will be processed and organized by applicant</li>
+            <li>📝 Extracted text saved to structured folders</li>
+            <li>🌐 Results pushed to <b>GitHub</b> repository</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Initialize session state
     if 'processed' not in st.session_state:
@@ -51,16 +62,20 @@ def main():
     if 'repo' not in st.session_state:
         st.session_state.repo = None
     
-    # File uploader
+    # File uploader 
     uploaded_files = st.file_uploader(
-        "Drag and drop files here",
+        "📤 <b>Drag and drop files here</b> (Limit 400MB per file, DOCX, PDF, TXT)",
         type=["docx", "pdf", "txt"],
-        accept_multiple_files=True
+        accept_multiple_files=True,
+        help="Only .docx, .pdf, or .txt files are allowed.",
+        key="file_uploader"
     )
     
     # Applicant name input
-    applicant_name = st.text_input("Applicant Name", 
-                                 placeholder="Enter applicant name for these files")
+    applicant_name = st.text_input(
+        "👤 Applicant Name",
+        placeholder="Enter applicant name for these files"
+    )
 
     if st.button("Process Files"):
         if not uploaded_files:
@@ -127,12 +142,14 @@ def main():
         # Display folder structure
         st.subheader("Folder Structure")
         if os.path.exists("scraped_info"):
+            st.markdown("<h3 style='margin-top:2em;'>📁 <u>Folder Structure</u></h3>", unsafe_allow_html=True)
             for applicant in os.listdir("scraped_info"):
                 applicant_path = os.path.join("scraped_info", applicant)
-                if os.path.isdir(applicant_path):  # Only process directories
-                    st.markdown(f"### 📁 {applicant}")
+                if os.path.isdir(applicant_path):  # Only process directories 
+                    st.markdown(f"<div class='folder-box'><b>👤 {applicant}</b>", unsafe_allow_html=True)
                     for file in os.listdir(applicant_path):
-                        st.write(f"- {file}")
+                        st.markdown(f"<span style='color:#6c63ff;'>🗎 {file}</span>", unsafe_allow_html=True)
+                        st.markdown("</div>", unsafe_allow_html=True)
                 else:
                     # Optionally, display or log non-directory items
                     pass  # or st.write(f"Skipping non-directory: {applicant}") 
