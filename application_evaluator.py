@@ -171,23 +171,23 @@ def main():
             #             st.markdown(f"<span style='color:#6c63ff;'>🗎 {file}</span>", unsafe_allow_html=True)
             #             files_data.append({"Applicant": applicant, "File": file})
 
-            if files_data:
-                df = pd.DataFrame(files_data)
+            # if files_data:
+            #     df = pd.DataFrame(files_data)
                 
-                # Style the dataframe for dark mode (light background)
-                styled_df = df.style.set_properties(**{
-                    'background-color': '#f0f9ff',  # Light baby blue
-                    'color': '#222',                # Dark text
-                    'border-color': '#a5b4fc'
-                }).set_table_styles([
-                    {'selector': 'th', 'props': [
-                        ('background-color', '#e0e7ff'),
-                        ('color', '#222'),
-                        ('font-weight', 'bold')
-                    ]}
-                ])
+            #     # Style the dataframe for dark mode (light background)
+            #     styled_df = df.style.set_properties(**{
+            #         'background-color': '#f0f9ff',  # Light baby blue
+            #         'color': '#222',                # Dark text
+            #         'border-color': '#a5b4fc'
+            #     }).set_table_styles([
+            #         {'selector': 'th', 'props': [
+            #             ('background-color', '#e0e7ff'),
+            #             ('color', '#222'),
+            #             ('font-weight', 'bold')
+            #         ]}
+            #     ])
                 
-                st.dataframe(styled_df, use_container_width=True)
+            #     st.dataframe(styled_df, use_container_width=True)
         
         # Download ZIP option
         st.divider()
