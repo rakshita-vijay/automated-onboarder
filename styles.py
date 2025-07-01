@@ -101,24 +101,6 @@ h1, .stTitle {
 [data-testid="stFileUploader"] * {
     color: #222 !important;
 }
-
-/* Specific targeting for file name and size text */
-[data-testid="stFileUploader"] small,
-[data-testid="stFileUploader"] span {
-    color: #222 !important;
-    background-color: transparent !important;
-}
- 
-/* --- Dropzone text color: black in light mode, white in dark mode --- */
-@media (prefers-color-scheme: dark) {
-  [data-testid="stFileUploaderDropzone"] * {
-    color: #fff !important;
-  }
-  [data-testid="stFileUploader"] button {
-    color: #fff !important;
-    border-color: #fff !important;
-  }
-}  
  
 </style>
 """ 
