@@ -8,8 +8,7 @@ from pypdf import PdfReader
 import tempfile
 
 from styles import css 
-st.markdown(css, unsafe_allow_html=True)
-st.markdown(css_code, unsafe_allow_html=True)
+st.markdown(css, unsafe_allow_html=True) 
 
 def setup_git_repo():
     try:
