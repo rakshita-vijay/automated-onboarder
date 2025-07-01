@@ -14,6 +14,8 @@ def setup_git_repo():
     repo_path = "scraped_info"
     
     try:
+        if os.path.exists(repo_path) and not os.path.exists(os.path.join(repo_path, ".git")):
+            shutil.rmtree(repo_path)
         if not os.path.exists(repo_path):
             repo = git.Repo.clone_from(repo_url, repo_path)
             st.success("Cloned GitHub repository successfully!")
