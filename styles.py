@@ -275,7 +275,7 @@ css = """
 """
 
 
-
+'''
 css_perfect_white = """
 <style>
 body {
@@ -381,3 +381,4 @@ h1, .stTitle {
  
 </style>
 """ 
+'''
