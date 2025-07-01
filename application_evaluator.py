@@ -11,7 +11,7 @@ uploaded_files = st.file_uploader(
     help="Only .docx, .pdf, or .txt files are allowed."
 )
 
-if uploaded_files:
+if uploaded_files is not None:
     st.write("### Uploaded File Details:")
     for uploaded_file in uploaded_files:
         file_details = {
