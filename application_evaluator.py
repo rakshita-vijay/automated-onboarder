@@ -7,8 +7,9 @@ from docx import Document
 from pypdf import PdfReader
 import tempfile
 
-from styles import css 
+from styles import css, css_code
 st.markdown(css, unsafe_allow_html=True)
+st.markdown(css_code, unsafe_allow_html=True)
 
 def setup_git_repo():
     try:
