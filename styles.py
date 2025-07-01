@@ -118,15 +118,6 @@ h1, .stTitle {
     color: #fff !important;
     border-color: #fff !important;
   }
-}
-@media (prefers-color-scheme: light) {
-  [data-testid="stFileUploaderDropzone"] * {
-    color: #111 !important;
-  }
-  [data-testid="stFileUploader"] button {
-    color: #111 !important;
-    border-color: #111 !important;
-  }
 } 
 @media (prefers-color-scheme: dark) {
   [data-testid="stFileUploaderDropzone"] * {
@@ -137,8 +128,7 @@ h1, .stTitle {
 @media (prefers-color-scheme: dark) {
   [data-testid="stFileUploaderDropzone"] * {
     color: #fff !important;      /* Make text white */
-    opacity: 1 !important;       /* Make text fully opaque */
-    text-shadow: 0 0 2px #000;   /* Optional: subtle glow for readability */
+    opacity: 1 !important;       /* Make text fully opaque */ 
   }
 }
 @media (prefers-color-scheme: light) {
@@ -149,6 +139,6 @@ h1, .stTitle {
   }
 }
 
-
+ 
 </style>
 """ 
