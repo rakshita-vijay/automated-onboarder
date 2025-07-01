@@ -1,4 +1,4 @@
-css_perfect_black = """  
+css = """  
 <style>
 /* ===== BODY & GENERAL LAYOUT ===== */
 /* Light Mode: White background */
