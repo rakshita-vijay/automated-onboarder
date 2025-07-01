@@ -51,6 +51,7 @@ def main():
         <span>🗂️ <b>Files will be processed and organized by applicant.</span><br>
         <span>📝 <b>Extracted text saved to structured folders.</span><br>
         <span>🌐 <b>Results pushed to <b>GitHub</b> repository.</span><br> 
+        <span> </span> 
     </div>
     """, unsafe_allow_html=True)
     
