@@ -55,19 +55,19 @@ h1, .stTitle {
 """
 css_code = """
 <style>
-/* Match file uploader drop area background */
+/* File uploader area */
 [data-testid="stFileUploader"] > div > div {
-    background-color: #f0f9ff !important; /* baby blue */
+    background-color: #e6f7ff !important;
     border-radius: 10px !important;
 }
 
-/* Make the text input box baby blue */
+/* Text input fields (Applicant Name, etc.) */
 [data-testid="stTextInput"] input {
-    background-color: #f0f9ff !important; /* baby blue */
+    background-color: #e6f7ff !important;
     border-radius: 10px !important;
-    border: 1px solid #a5b4fc !important;
-    padding: 8px !important;
     color: #222 !important;
+    border: 1.5px solid #a5b4fc !important;
+    font-size: 1.1rem !important;
 }
 </style>
-"""
+""" 
