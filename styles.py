@@ -97,6 +97,10 @@ h1, .stTitle {
     padding: 8px !important;
 } 
 
+/* Make sure all text in file uploader area is dark */
+[data-testid="stFileUploader"] * {
+    color: #222 !important;
+}
 
 /* Specific targeting for file name and size text */
 [data-testid="stFileUploader"] small,
