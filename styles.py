@@ -205,6 +205,28 @@ css = """
         color: #fff !important;
     }
 }   
+/* Make all text in the tree select widget black in light mode */
+@media (prefers-color-scheme: light) {
+  [data-testid="stTreeSelect"] span,
+  [data-testid="stTreeSelect"] label,
+  [data-testid="stTreeSelect"] div {
+    color: #000 !important;
+  }
+  [data-testid="stTreeSelect"] input[type="checkbox"] {
+    filter: invert(1); /* Optional: makes the checkbox white */
+  }
+}    
+/* Make all text in the tree select widget white in dark mode */
+@media (prefers-color-scheme: dark) {
+  [data-testid="stTreeSelect"] span,
+  [data-testid="stTreeSelect"] label,
+  [data-testid="stTreeSelect"] div {
+    color: #fff !important;
+  }
+  [data-testid="stTreeSelect"] input[type="checkbox"] {
+    filter: invert(1); /* Optional: makes the checkbox white */
+  }
+} 
 </style> 
 """
 
