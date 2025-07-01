@@ -6,6 +6,7 @@ import git
 from docx import Document
 from pypdf import PdfReader
 import tempfile
+import pandas as pd
 
 from styles import css 
 st.markdown(css, unsafe_allow_html=True) 
