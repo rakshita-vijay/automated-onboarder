@@ -108,5 +108,26 @@ h1, .stTitle {
     color: #222 !important;
     background-color: transparent !important;
 }
+ 
+/* --- Dropzone text color: black in light mode, white in dark mode --- */
+@media (prefers-color-scheme: dark) {
+  [data-testid="stFileUploaderDropzone"] * {
+    color: #fff !important;
+  }
+  [data-testid="stFileUploader"] button {
+    color: #fff !important;
+    border-color: #fff !important;
+  }
+}
+@media (prefers-color-scheme: light) {
+  [data-testid="stFileUploaderDropzone"] * {
+    color: #111 !important;
+  }
+  [data-testid="stFileUploader"] button {
+    color: #111 !important;
+    border-color: #111 !important;
+  }
+} 
+
 </style>
 """ 
