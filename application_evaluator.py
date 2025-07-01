@@ -7,7 +7,7 @@ from docx import Document
 from pypdf import PdfReader
 import tempfile
 
-from styles import css, css_code
+from styles import css 
 st.markdown(css, unsafe_allow_html=True)
 st.markdown(css_code, unsafe_allow_html=True)
 
