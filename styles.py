@@ -64,6 +64,49 @@ h1, .stTitle {
     color: #222 !important;
     border: 1.5px solid #a5b4fc !important;
     font-size: 1.1rem !important;
+} 
+/* Fix applicant name placeholder text visibility in dark mode */
+[data-testid="stTextInput"] input::placeholder {
+    color: #666 !important;
+    opacity: 1 !important;
+    font-style: italic;
+}
+
+/* Fix uploaded file name and size visibility in dark mode */
+[data-testid="stFileUploader"] .uploadedFile {
+    background-color: #f0f9ff !important;
+    color: #222 !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+    margin: 5px 0 !important;
+}
+
+/* Target the file info text specifically */
+[data-testid="stFileUploader"] [data-testid="fileStatus"] {
+    color: #222 !important;
+    background-color: #f0f9ff !important;
+    padding: 8px !important;
+    border-radius: 8px !important;
+}
+
+/* Alternative selector for uploaded file display */
+[data-testid="stFileUploader"] div[data-testid="stFileUploaderDropzone"] + div {
+    background-color: #f0f9ff !important;
+    color: #222 !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+}
+
+/* Make sure all text in file uploader area is dark */
+[data-testid="stFileUploader"] * {
+    color: #222 !important;
+}
+
+/* Specific targeting for file name and size text */
+[data-testid="stFileUploader"] small,
+[data-testid="stFileUploader"] span {
+    color: #222 !important;
+    background-color: transparent !important;
 }
 </style>
 """ 
