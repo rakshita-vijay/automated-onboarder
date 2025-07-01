@@ -7,6 +7,7 @@ from docx import Document
 from pypdf import PdfReader
 import tempfile
 import pandas as pd
+from streamlit_tree_select import tree_select
 
 from styles import css 
 st.markdown(css, unsafe_allow_html=True) 
@@ -39,6 +40,19 @@ def extract_txt(file_path):
     with open(file_path, "r") as f:
         return f.read()
 
+def build_tree(root):
+    nodes = []
+    for folder in sorted(os.listdir(root)):
+        folder_path = os.path.join(root, folder)
+        if os.path.isdir(folder_path):
+            children = []
+            for file in sorted(os.listdir(folder_path)):
+                file_path = os.path.join(folder_path, file)
+                if os.path.isfile(file_path):
+                    children.append({"label": file, "value": f"{folder}/{file}"})
+            nodes.append({"label": folder, "value": folder, "children": children})
+    return nodes
+    
 # Streamlit app
 def main(): 
     st.markdown(
@@ -140,16 +154,22 @@ def main():
                     st.error(f"Push failed: {str(e)}") 
         
         # Display folder structure 
-        if os.path.exists("scraped_info"):
-            st.markdown("<h3 style='margin-top:2em;'>📁 <u>Folder Structure</u></h3>", unsafe_allow_html=True)
-            files_data = []
-            for applicant in os.listdir("scraped_info"):
-                applicant_path = os.path.join("scraped_info", applicant)
-                if os.path.isdir(applicant_path):  # Only process directories 
-                    st.markdown(f"<div class='folder-box'><b>👤 {applicant}</b>", unsafe_allow_html=True)
-                    for file in os.listdir(applicant_path):
-                        st.markdown(f"<span style='color:#6c63ff;'>🗎 {file}</span>", unsafe_allow_html=True)
-                        files_data.append({"Applicant": applicant, "File": file})
+        scraped_info_path = "scraped_info"
+        if os.path.exists(scraped_info_path):
+            tree_data = build_tree(scraped_info_path)
+            selected = tree_select(tree_data, checkbox=False, expand_all=True)
+            # Display the selected file/folder if needed
+            if selected:
+                st.write("Selected:", selected)
+            # st.markdown("<h3 style='margin-top:2em;'>📁 <u>Folder Structure</u></h3>", unsafe_allow_html=True)
+            # files_data = []
+            # for applicant in os.listdir(scraped_info_path):
+            #     applicant_path = os.path.join(scraped_info_path, applicant)
+            #     if os.path.isdir(applicant_path):  # Only process directories 
+            #         st.markdown(f"<div class='folder-box'><b>👤 {applicant}</b>", unsafe_allow_html=True)
+            #         for file in os.listdir(applicant_path):
+            #             st.markdown(f"<span style='color:#6c63ff;'>🗎 {file}</span>", unsafe_allow_html=True)
+            #             files_data.append({"Applicant": applicant, "File": file})
 
             if files_data:
                 df = pd.DataFrame(files_data)
