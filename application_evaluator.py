@@ -47,7 +47,7 @@ def main():
 
     st.markdown("""
     <div style='text-align:center; font-size:1.2em;'>
-        <span>🚀 <b>Upload files (DOCX, PDF, TXT)</b> to <span style='color:#6c63ff;'>extract text content</span>.</span><br>
+        <span>🚀 <b>Upload files (DOCX, PDF, TXT)</b> to extract text content.</span><br>
         <ul style="list-style: none; padding: 0;">
             <li>🗂️ Files will be processed and organized by applicant</li>
             <li>📝 Extracted text saved to structured folders</li>
