@@ -136,10 +136,14 @@ def main():
         st.subheader("Folder Structure")
         if os.path.exists("scraped_info"):
             for applicant in os.listdir("scraped_info"):
-                st.markdown(f"### 📁 {applicant}")
                 applicant_path = os.path.join("scraped_info", applicant)
-                for file in os.listdir(applicant_path):
-                    st.write(f"- {file}")
+                if os.path.isdir(applicant_path):  # Only process directories
+                    st.markdown(f"### 📁 {applicant}")
+                    for file in os.listdir(applicant_path):
+                        st.write(f"- {file}")
+                else:
+                    # Optionally, display or log non-directory items
+                    pass  # or st.write(f"Skipping non-directory: {applicant}") 
         
         # Download ZIP option
         st.divider()
