@@ -12,7 +12,8 @@ def setup_git_repo():
         # Initialize git repo in current directory (if not already)
         GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
         repo = git.Repo(".")  # Use current directory, not scraped_info
-        repo_url = f"https://rakshita-vijay:{GITHUB_TOKEN}@github.com/rakshita-vijay/automated-onboarder.git" 
+        username = "rakshita-vijay"
+        repo_url = f"https://{username}:{GITHUB_TOKEN}@github.com/{username}/automated-onboarder.git" 
         repo.remote().set_url(repo_url)
         st.success("Using existing Git repository!")
         return repo
