@@ -89,14 +89,14 @@ h1, .stTitle {
     border-radius: 8px !important;
 }
 
-/* Alternative selector for uploaded file display 
+/* Alternative selector for uploaded file display */
 [data-testid="stFileUploader"] div[data-testid="stFileUploaderDropzone"] + div {
     background-color: #f0f9ff !important;
     color: #222 !important;
     border-radius: 8px !important;
     padding: 8px !important;
 } 
-*/
+
 
 /* Specific targeting for file name and size text */
 [data-testid="stFileUploader"] small,
