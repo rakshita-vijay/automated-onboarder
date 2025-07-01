@@ -8,6 +8,14 @@ css = """
     body { background: #181920 !important; font-family: 'Segoe UI', sans-serif; color: #fff !important; }
 }
 
+/* ===== MAIN HEADING ===== */
+@media (prefers-color-scheme: light) {
+    h1, .stTitle { color: #000 !important; background: #ffffff !important; font-weight: 900; letter-spacing: 1px; white-space: nowrap; text-align: center; }
+}
+@media (prefers-color-scheme: dark) {
+    h1, .stTitle { color: #fff !important; font-weight: 900; letter-spacing: 1px; white-space: nowrap; text-align: center; }
+}
+
 /* ===== TEXT INPUT FIELDS ===== */
 @media (prefers-color-scheme: light) {
     [data-testid="stTextInput"] input {
@@ -196,17 +204,7 @@ css = """
         background-color: #181920 !important;
         color: #fff !important;
     }
-}
-
-
-
-/* ===== MAIN HEADING ===== */
-@media (prefers-color-scheme: light) {
-    h1, .stTitle { color: #000 !important; font-weight: 900; letter-spacing: 1px; white-space: nowrap; text-align: center; }
-}
-@media (prefers-color-scheme: dark) {
-    h1, .stTitle { color: #fff !important; font-weight: 900; letter-spacing: 1px; white-space: nowrap; text-align: center; }
-}
+} 
 </style> 
 """
 
