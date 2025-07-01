@@ -10,7 +10,7 @@ css = """
 
 /* ===== MAIN HEADING ===== */
 @media (prefers-color-scheme: light) {
-    h1, .stTitle { color: #000 !important; background: #fff !important; font-weight: 900; letter-spacing: 1px; white-space: nowrap; text-align: center; }
+    .stHeading, h1, .stTitle { color: #000 !important; background: #fff !important; font-weight: 900; letter-spacing: 1px; white-space: nowrap; text-align: center; }
 }
 @media (prefers-color-scheme: dark) {
     h1, .stTitle { color: #fff !important; font-weight: 900; letter-spacing: 1px; white-space: nowrap; text-align: center; }
