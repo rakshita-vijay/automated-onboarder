@@ -9,6 +9,8 @@ h1, .stTitle {
     color: #6c63ff;
     font-weight: 900;
     letter-spacing: 1px;
+    white-space: nowrap;
+    text-align: center;
 }
 .stTextInput>div>div>input {
     background-color: #f5f7fa;
