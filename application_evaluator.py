@@ -48,11 +48,9 @@ def main():
     st.markdown("""
     <div style='text-align:center; font-size:1.2em;'>
         <span>🚀 <b>Upload files (DOCX, PDF, TXT)</b> to extract text content.</span><br>
-        <ul style="list-style: none; text-align: center;">
-            <li>🗂️ Files will be processed and organized by applicant</li>
-            <li>📝 Extracted text saved to structured folders</li>
-            <li>🌐 Results pushed to <b>GitHub</b> repository</li>
-        </ul>
+        <span>🗂️ <b>Files will be processed and organized by applicant.</span><br>
+        <span>📝 <b>Extracted text saved to structured folders.</span><br>
+        <span>🌐 <b>Results pushed to <b>GitHub</b> repository.</span><br> 
     </div>
     """, unsafe_allow_html=True)
     
