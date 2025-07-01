@@ -139,8 +139,7 @@ def main():
                 except Exception as e:
                     st.error(f"Push failed: {str(e)}") 
         
-        # Display folder structure
-        st.subheader("Folder Structure")
+        # Display folder structure 
         if os.path.exists("scraped_info"):
             st.markdown("<h3 style='margin-top:2em;'>📁 <u>Folder Structure</u></h3>", unsafe_allow_html=True)
             files_data = []
