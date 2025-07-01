@@ -1,8 +1,2 @@
 [server]
-maxUploadSize = 400
-
-[theme]
-primaryColor = "#6c63ff"                # (optional, for buttons/highlights)
-backgroundColor = "#181920"             # (your dark main background, as in your screenshot)
-secondaryBackgroundColor = "#e6f7ff"    # baby blue for widgets, cards, input areas
-textColor = "#ffffff"
+maxUploadSize = 400 
