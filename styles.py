@@ -72,7 +72,7 @@ h1, .stTitle {
     font-style: italic;
 }
 
-/* Fix uploaded file name and size visibility in dark mode
+/* Fix uploaded file name and size visibility in dark mode */
 [data-testid="stFileUploader"] .uploadedFile {
     background-color: #f0f9ff !important;
     color: #222 !important;
@@ -80,7 +80,6 @@ h1, .stTitle {
     padding: 8px !important;
     margin: 5px 0 !important;
 }
- */
 
 /* Target the file info text specifically */
 [data-testid="stFileUploader"] [data-testid="fileStatus"] {
@@ -98,10 +97,11 @@ h1, .stTitle {
     padding: 8px !important;
 }
 
-/* Make sure all text in file uploader area is dark */
+/* Make sure all text in file uploader area is dark 
 [data-testid="stFileUploader"] * {
     color: #222 !important;
 }
+*/
 
 /* Specific targeting for file name and size text */
 [data-testid="stFileUploader"] small,
