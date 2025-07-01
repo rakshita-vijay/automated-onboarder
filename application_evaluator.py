@@ -9,7 +9,7 @@ import tempfile
 
 # Initialize GitHub repository
 def setup_git_repo():
-    repo_url = "https://github.com/yourusername/your-repo.git"  # Replace with your repo
+    repo_url = "https://github.com/rakshita-vijay/automated-onboarder"  
     repo_path = "scraped_info"
     
     try:
