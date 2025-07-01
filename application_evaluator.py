@@ -66,47 +66,47 @@ def main():
     applicant_name = st.text_input("Applicant Name", 
                                  placeholder="Enter applicant name for these files")
 
-    if st.button("Process Files") and not (uploaded_files and applicant_name):
+    if st.button("Process Files"):
         if not uploaded_files:
             st.warning("There are no files to process")
-        else:
+        if not applicant_name:
             st.warning("Applicant's name has not been entered") 
-            
-    if st.button("Process Files") and uploaded_files and applicant_name:
-        with st.spinner("Processing files..."):
-            # Setup folder structure
-            base_dir = "scraped_info"
-            applicant_dir = os.path.join(base_dir, applicant_name)
-            os.makedirs(applicant_dir, exist_ok=True)
-            
-            # Process each file
-            for uploaded_file in uploaded_files:
-                # Save original file
-                original_path = os.path.join(applicant_dir, uploaded_file.name)
-                with open(original_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
+
+        else:
+            with st.spinner("Processing files..."):
+                # Setup folder structure
+                base_dir = "scraped_info"
+                applicant_dir = os.path.join(base_dir, applicant_name)
+                os.makedirs(applicant_dir, exist_ok=True)
                 
-                # Extract text based on file type
-                file_ext = uploaded_file.name.split(".")[-1].lower()
-                try:
-                    if file_ext == "docx":
-                        text = extract_docx(original_path)
-                    elif file_ext == "pdf":
-                        text = extract_pdf(original_path)
-                    else:  # txt
-                        text = extract_txt(original_path)
+                # Process each file
+                for uploaded_file in uploaded_files:
+                    # Save original file
+                    original_path = os.path.join(applicant_dir, uploaded_file.name)
+                    with open(original_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
                     
-                    # Save extracted text
-                    text_filename = f"{os.path.splitext(uploaded_file.name)[0]}.txt"
-                    text_path = os.path.join(applicant_dir, text_filename)
-                    with open(text_path, "w") as f:
-                        f.write(text)
-                    
-                except Exception as e:
-                    st.error(f"Error processing {uploaded_file.name}: {str(e)}")
-            
-            st.session_state.processed = True
-            st.success(f"Processed {len(uploaded_files)} files for {applicant_name}!")
+                    # Extract text based on file type
+                    file_ext = uploaded_file.name.split(".")[-1].lower()
+                    try:
+                        if file_ext == "docx":
+                            text = extract_docx(original_path)
+                        elif file_ext == "pdf":
+                            text = extract_pdf(original_path)
+                        else:  # txt
+                            text = extract_txt(original_path)
+                        
+                        # Save extracted text
+                        text_filename = f"{os.path.splitext(uploaded_file.name)[0]}.txt"
+                        text_path = os.path.join(applicant_dir, text_filename)
+                        with open(text_path, "w") as f:
+                            f.write(text)
+                        
+                    except Exception as e:
+                        st.error(f"Error processing {uploaded_file.name}: {str(e)}")
+                
+                st.session_state.processed = True
+                st.success(f"Processed {len(uploaded_files)} files for {applicant_name}!")
     
     # GitHub integration
     if st.session_state.processed:
