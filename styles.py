@@ -204,10 +204,7 @@ css = """
         background-color: #181920 !important;
         color: #fff !important;
     }
-}  
-@media (prefers-color-scheme: light) {
-    h1, .stTitle { color: #000 !important; background: #fff !important; font-weight: 900; letter-spacing: 1px; white-space: nowrap; text-align: center; }
-}
+}   
 </style> 
 """
 
