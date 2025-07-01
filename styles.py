@@ -118,27 +118,7 @@ h1, .stTitle {
     color: #fff !important;
     border-color: #fff !important;
   }
-} 
-@media (prefers-color-scheme: dark) {
-  [data-testid="stFileUploaderDropzone"] * {
-    color: #fff !important;
-    opacity: 1 !important;         /* <-- Force fully visible */
-    text-shadow: 0 0 2px #111;     /* Optional: add a subtle glow for readability */
-  }
-@media (prefers-color-scheme: dark) {
-  [data-testid="stFileUploaderDropzone"] * {
-    color: #fff !important;      /* Make text white */
-    opacity: 1 !important;       /* Make text fully opaque */ 
-  }
-}
-@media (prefers-color-scheme: light) {
-  [data-testid="stFileUploaderDropzone"] * {
-    color: #111 !important;      /* Make text black in light mode */
-    opacity: 1 !important;
-    text-shadow: none !important;
-  }
-}
-
+}  
  
 </style>
 """ 
