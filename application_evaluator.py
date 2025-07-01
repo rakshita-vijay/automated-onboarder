@@ -62,7 +62,7 @@ def main():
     
     # File uploader 
     uploaded_files = st.file_uploader(
-        "📤 <b>Drag and drop files here</b> (Limit 400MB per file, DOCX, PDF, TXT)",
+        "",
         type=["docx", "pdf", "txt"],
         accept_multiple_files=True,
         help="Only .docx, .pdf, or .txt files are allowed.",
