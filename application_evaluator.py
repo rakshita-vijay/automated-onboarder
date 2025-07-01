@@ -50,8 +50,7 @@ def main():
         <span>🚀 <b>Upload files (DOCX, PDF, TXT)</b> to extract text content.</span><br>
         <span>🗂️ <b>Files will be processed and organized by applicant.</span><br>
         <span>📝 <b>Extracted text saved to structured folders.</span><br>
-        <span>🌐 <b>Results pushed to <b>GitHub</b> repository.</span><br> 
-        <span> </span> 
+        <span>🌐 <b>Results pushed to <b>GitHub</b> repository.</span><br> <br> 
     </div>
     """, unsafe_allow_html=True)
     
