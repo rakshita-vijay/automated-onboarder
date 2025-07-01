@@ -159,8 +159,9 @@ def main():
             tree_data = build_tree(scraped_info_path)
             selected = tree_select(tree_data)
             # Display the selected file/folder if needed
-            if selected:
-                st.write("Selected:", selected)
+            # if selected:
+            #     st.write("Selected:", selected)
+        
             # st.markdown("<h3 style='margin-top:2em;'>📁 <u>Folder Structure</u></h3>", unsafe_allow_html=True)
             # files_data = []
             # for applicant in os.listdir(scraped_info_path):
