@@ -2,12 +2,26 @@
 
 import streamlit as st
 import os
+import git
 from docx import Document
 from pypdf import PdfReader
 from streamlit_tree_select import tree_select
-from styles import css_dark  # Or css_light, as appropriate
+from styles import css_dark  # or css_light, as appropriate
 
 st.markdown(css_dark, unsafe_allow_html=True)
+
+def setup_git_repo():
+    try:
+        GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
+        repo = git.Repo(".")
+        username = "rakshita-vijay"
+        repo_url = f"https://{username}:{GITHUB_TOKEN}@github.com/{username}/automated-onboarder.git"
+        repo.remote().set_url(repo_url)
+        st.success("Using existing Git repository!")
+        return repo
+    except git.exc.InvalidGitRepositoryError:
+        st.error("Not in a Git repository. Make sure you're running from your repo directory.")
+        return None
 
 def extract_docx(file_path):
     doc = Document(file_path)
@@ -50,6 +64,10 @@ def build_jd_tree(jd_dir="JDs"):
     return nodes
 
 def upload_jd():
+    # Session state for Git
+    if 'jd_repo' not in st.session_state:
+        st.session_state.jd_repo = None
+
     st.header("📄 Upload a Job Description (JD)")
     jd_file = st.file_uploader(
         "Upload a JD file (DOCX, PDF, or TXT)",
@@ -72,6 +90,24 @@ def upload_jd():
             with st.spinner("Extracting and saving JD..."):
                 txt_path = save_and_extract_jd(jd_file, jd_name.strip())
                 st.success(f"JD '{jd_name}' extracted and saved as {os.path.basename(txt_path)}.")
+
+    # GitHub integration for JD folder
+    st.divider()
+    st.subheader("GitHub Integration (JDs)")
+    if st.button("Push JDs to GitHub"):
+        with st.spinner("Pushing JDs to GitHub..."):
+            try:
+                if not st.session_state.jd_repo:
+                    st.session_state.jd_repo = setup_git_repo()
+                if st.session_state.jd_repo:
+                    repo = st.session_state.jd_repo
+                    repo.git.add("JDs/")
+                    repo.index.commit("Add or update JD files")
+                    origin = repo.remote(name="origin")
+                    origin.push()
+                    st.success("JDs pushed to GitHub repository!")
+            except Exception as e:
+                st.error(f"Push failed: {str(e)}")
 
     st.divider()
     st.subheader("📂 Available Job Descriptions")
