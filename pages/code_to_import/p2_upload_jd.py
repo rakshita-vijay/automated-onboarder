@@ -8,6 +8,8 @@ from pypdf import PdfReader
 from streamlit_tree_select import tree_select
 from styles import css_dark  # or css_light, as appropriate
 
+from pages.code_to_import.p1_upload_resume import resume_button 
+
 st.markdown(css_dark, unsafe_allow_html=True)
 st.markdown("""
 <style> 
@@ -77,6 +79,9 @@ def build_jd_tree(jd_dir="JDs"):
                 nodes.append({"label": file[:-4], "value": file})
     return nodes
 
+def jd_button():
+  st.page_link("pages/p2_jd.py", label="📝 Upload JD") 
+  
 def upload_jd():
     # Session state for Git
     if 'jd_repo' not in st.session_state:
@@ -133,4 +138,6 @@ def upload_jd():
     if nodes:
         tree_select(nodes)
     else:
-        st.info("No JDs uploaded yet.")  
+        st.info("No JDs uploaded yet.")
+
+    resume_button()
