@@ -117,15 +117,8 @@ def upload_jd():
 
     st.divider()
     st.subheader("📂 Available Job Descriptions")
-    jd_nodes = build_jd_tree()
-    if jd_nodes:
-        selected = tree_select(jd_nodes)
-        if selected:
-            jd_file = selected[0]
-            jd_path = os.path.join("JDs", jd_file)
-            with open(jd_path, "r", encoding="utf-8") as f:
-                jd_content = f.read()
-            st.markdown(f"#### JD: {jd_file[:-4]}")
-            st.code(jd_content, language="text")
+    nodes = build_jd_tree()
+    if nodes:
+        tree_select(nodes)
     else:
-        st.info("No JDs uploaded yet.") 
+        st.info("No JDs uploaded yet.")  
