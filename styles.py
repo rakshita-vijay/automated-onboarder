@@ -142,10 +142,9 @@ css_dark = """
     cursor: pointer;
 }
 .stPageLink:hover {
-    background: #f0f0f0 !important;
+    background: #333 !important;
     color: #fff !important;
-    border: 2px solid #000 !important;  
-    box-shadow: 0 4px 16px rgba(108,99,255,0.15); 
+    border: 2px solid #fff !important; 
 }
 .stPageLink a {
     text-decoration: none !important;
