@@ -121,7 +121,7 @@ css_dark = """
     border: 2px solid #fff;
     border-radius: 10px;
     background: transparent;
-    padding: 18px 28px;
+    padding: 8px 16px;
     color: #fff;
     font-size: 1.2em;
     font-weight: bold;
