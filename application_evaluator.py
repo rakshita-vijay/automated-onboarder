@@ -11,6 +11,7 @@ from streamlit_tree_select import tree_select
 
 from pages.code_to_import.p1_upload_resume import resume_button
 from pages.code_to_import.p2_upload_jd import jd_button
+from pages.code_to_import.p3_crosscheck_resume_jd import crosscheck_button 
 
 from styles import css_dark  
 
@@ -58,7 +59,7 @@ def main():
     # st.page_link("pages/p2_jd.py", label="📝 Upload JD")
     resume_button()
     jd_button()
-    st.page_link("pages/p3_eval.py", label="🧮 Evaluate Applications") 
+    crosscheck_button() 
 
 if __name__ == "__main__":
     main() 
