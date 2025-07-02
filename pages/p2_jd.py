@@ -20,7 +20,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
 upload_jd() 
 st.divider()
 resume_button() 
