@@ -86,22 +86,22 @@ def upload_resume():
     )
     applicant_name = st.text_input(
         "👤 Applicant Name",
-        placeholder="Enter applicant name for these files"
+        placeholder="Enter applicant name for these files (e.g., Jane Doe)"
     )
 
     if st.button("Process Files"):
         if not uploaded_files:
-            st.warning("There are no files to process")
+            st.warning("There are no files to process :(")
         elif not applicant_name:
-            st.warning("Applicant's name has not been entered")
+            st.warning("Applicant's name has not been entered :(")
         else:
-            with st.spinner("Processing files..."):
+            with st.spinner("Extracting and saving files..."):
                 for uploaded_file in uploaded_files:
                     try:
-                        save_and_extract_resume(uploaded_file, applicant_name)
+                        save_and_extract_resume(uploaded_file, applicant_name.strip())
                     except Exception as e:
                         st.error(f"Error processing {uploaded_file.name}: {str(e)}")
-                st.success(f"Processed {len(uploaded_files)} files for {applicant_name}!")
+                st.success(f"Successfully processed {len(uploaded_files)} files for {applicant_name}!")
 
     # GitHub integration
     st.divider()
