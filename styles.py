@@ -122,20 +122,19 @@ css_dark = """
   [data-testid="stTreeSelect"] input[type="checkbox"] {
     filter: invert(1); /* Optional: makes the checkbox white */
   }
-} 
+}   
 
-@media (prefers-color-scheme: dark) {
-  [data-testid="stTreeSelect"] span,
-  [data-testid="stTreeSelect"] label,
-  [data-testid="stTreeSelect"] div {
-    color: #fff !important;
-  }
-}
-</style> 
-"""
 
-css_light = """
-<style>
+
+
+
+
+
+# css_light =  
+
+
+
+
 /* ===== BODY & GENERAL LAYOUT ===== */
 body[data-theme="light"] b { background: #ffffff !important; font-family: 'Segoe UI', sans-serif; color: #000 !important; }
 
