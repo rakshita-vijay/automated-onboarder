@@ -8,7 +8,7 @@ from pypdf import PdfReader
 from streamlit_tree_select import tree_select
 from styles import css_dark  # or css_light
 
-from pages.code_to_import.p2_upload_jd import jd_button
+from code_to_import.p2_upload_jd import jd_button
 
 st.markdown(css_dark, unsafe_allow_html=True)
 st.markdown("""
