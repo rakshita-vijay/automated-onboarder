@@ -111,7 +111,7 @@ def upload_jd():
 
     # GitHub integration for JD folder
     st.divider()
-    st.subheader("GitHub Integration (JDs)")
+    st.subheader("GitHub Integration")
     if st.button("Push JDs to GitHub"):
         with st.spinner("Pushing JDs to GitHub..."):
             try:
