@@ -9,6 +9,17 @@ from streamlit_tree_select import tree_select
 from styles import css_dark  # or css_light
 
 st.markdown(css_dark, unsafe_allow_html=True)
+st.markdown("""
+<style>
+@media (prefers-color-scheme: dark) {
+  [data-testid="stTreeSelect"] label,
+  [data-testid="stTreeSelect"] span,
+  [data-testid="stTreeSelect"] div {
+    color: #fff !important;
+  }
+}
+</style>
+""", unsafe_allow_html=True)
 
 def setup_git_repo():
     try:
