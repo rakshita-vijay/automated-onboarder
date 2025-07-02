@@ -116,7 +116,7 @@ css_dark = """
 /* Make st.page_link look like outlined buttons */
 .stPageLink {
     display: block; 
-    max-width: 300px; 
+    max-width: 350px; 
     margin: 8px 0;
     border: 2px solid #fff;
     border-radius: 10px;
