@@ -57,21 +57,7 @@ def build_tree(root):
     return nodes
     
 # Streamlit app
-def main(): 
-    st.markdown(
-        "<h1 style='text-align:center;'>📄✨ Document Processing System ✨📄</h1>",
-        unsafe_allow_html=True
-    ) 
-
-    st.markdown("""
-    <div style='text-align:center; font-size:1.2em;'>
-        <span>🚀 <b>Upload files (DOCX, PDF, TXT)</b> to extract text content.</span><br>
-        <span>🗂️ <b>Files will be processed and organized by applicant.</span><br>
-        <span>📝 <b>Extracted text saved to structured folders.</span><br>
-        <span>🌐 <b>Results pushed to <b>GitHub</b> repository.</span><br> <br> 
-    </div>
-    """, unsafe_allow_html=True)
-    
+def upload_resume(): 
     # Initialize session state
     if 'processed' not in st.session_state:
         st.session_state.processed = False
@@ -174,7 +160,4 @@ def main():
                     label="Download All Files as ZIP",
                     data=f,
                     file_name="scraped_info.zip"
-                )
-
-if __name__ == "__main__":
-    main()
+                ) 
