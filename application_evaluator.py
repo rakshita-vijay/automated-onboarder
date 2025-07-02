@@ -9,8 +9,8 @@ import tempfile
 import pandas as pd
 from streamlit_tree_select import tree_select 
 
-from pages.1_upload_resume import upload_resume
-from pages.2_upload_jd import upload_jd 
+from pages.p1_upload_resume import upload_resume
+from pages.p2_upload_jd import upload_jd 
 
 from styles import css_dark 
 st.markdown(css_dark, unsafe_allow_html=True)  
