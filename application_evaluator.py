@@ -9,8 +9,9 @@ import tempfile
 import pandas as pd
 from streamlit_tree_select import tree_select
 
-from styles import css 
-st.markdown(css, unsafe_allow_html=True) 
+from styles import css_dark, css_light
+st.markdown(css_dark, unsafe_allow_html=True) 
+st.markdown(css_light, unsafe_allow_html=True) 
 
 def setup_git_repo():
     try:
