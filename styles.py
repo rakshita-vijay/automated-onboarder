@@ -111,19 +111,8 @@ css_dark = """
         background-color: #181920 !important;
         color: #fff !important;
     }
-} 
-/* Make all text in the tree select widget white in dark mode */
-@media (prefers-color-scheme: dark) {
-  [data-testid="stTreeSelect"] span,
-  [data-testid="stTreeSelect"] label,
-  [data-testid="stTreeSelect"] div {
-    color: #fff !important;
-  }
-  [data-testid="stTreeSelect"] input[type="checkbox"] {
-    filter: invert(1); /* Optional: makes the checkbox white */
-  }
-}  
- 
+}
+
 /* Make st.page_link look like outlined buttons */
 .stPageLink {
     display: block;
@@ -150,6 +139,17 @@ css_dark = """
     text-decoration: none !important;
     color: inherit !important;
     display: block;
+}
+/* Make all text in the tree select widget white in dark mode */
+@media (prefers-color-scheme: dark) {
+  [data-testid="stTreeSelect"] span,
+  [data-testid="stTreeSelect"] label,
+  [data-testid="stTreeSelect"] div {
+    color: #fff !important;
+  }
+  [data-testid="stTreeSelect"] input[type="checkbox"] {
+    filter: invert(1); /* Optional: makes the checkbox white */
+  }
 } 
 
 
