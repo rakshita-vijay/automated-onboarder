@@ -143,8 +143,8 @@ css_dark = """
 }
 .stPageLink:hover {
     background: #f0f0f0 !important;
-    color: #000 !important;
-    border: 2px solid #000 !important;
+    color: #fff !important;
+    border: 2px solid #000 !important; 
 }
 .stPageLink a {
     text-decoration: none !important;
