@@ -6,4 +6,5 @@ from pages.code_to_import.p1_upload_resume import resume_button
 
 st.markdown(css_dark, unsafe_allow_html=True)
 upload_jd() 
+st.divider()
 resume_button() 
