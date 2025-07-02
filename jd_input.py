@@ -53,7 +53,7 @@ def save_and_extract_jd(jd_file, jd_name):
     txt_path = os.path.join(jd_dir, f"{jd_name}.txt")
     with open(txt_path, "w", encoding="utf-8") as f:
         f.write(text)
-    return txt_path
+    # return txt_path
 
 def build_jd_tree(jd_dir="JDs"):
     nodes = []
@@ -82,14 +82,19 @@ def upload_jd():
         key="jd_name"
     )
 
-    if st.button("Save JD"):
+    if st.button("Process JD"):
         if jd_file is None:
-            st.warning("Please upload a JD file.")
+            st.warning("There are no JDs to process :(")
         elif not jd_name.strip():
-            st.warning("Please enter a JD name.")
+            st.warning("JD name has not been entered :(")
         else:
-            with st.spinner("Extracting and saving JD..."):
-                txt_path = save_and_extract_jd(jd_file, jd_name.strip())
+            with st.spinner("Extracting and saving JD..."):  
+                # txt_path = save_and_extract_jd(jd_file, jd_name.strip())
+                # st.success(f"JD '{jd_name}' extracted and saved as {os.path.basename(txt_path)}.") 
+                try:
+                    save_and_extract_jd(jd_file, jd_name.strip())
+                except Exception as e:
+                    st.error(f"Error processing {jd_file.name}: {str(e)}")  
                 st.success(f"JD '{jd_name}' extracted and saved as {os.path.basename(txt_path)}.")
 
     # GitHub integration for JD folder
