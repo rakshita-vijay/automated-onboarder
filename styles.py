@@ -117,7 +117,7 @@ css_dark = """
 .stPageLink {
     display: block;
     max-width: 350px;
-    margin: 18px 0;
+    margin: 8px 0;
     border: 2px solid #fff;
     border-radius: 10px;
     background: transparent;
