@@ -123,7 +123,34 @@ css_dark = """
     filter: invert(1); /* Optional: makes the checkbox white */
   }
 }  
-
+ 
+/* Make st.page_link look like outlined buttons */
+.stPageLink {
+    display: block;
+    max-width: 350px;
+    margin: 18px 0;
+    border: 2px solid #6c63ff;
+    border-radius: 10px;
+    background: transparent;
+    padding: 18px 28px;
+    color: #6c63ff;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(108,99,255,0.05);
+    cursor: pointer;
+}
+.stPageLink:hover {
+    background: #6c63ff;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(108,99,255,0.15);
+}
+.stPageLink a {
+    text-decoration: none !important;
+    color: inherit !important;
+    display: block;
+} 
 
 
 
