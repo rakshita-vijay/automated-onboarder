@@ -23,7 +23,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def crosscheck_button():
-  st.page_link("pages/p3_eval.py", label="☯️ Evaluate Resume")
+  st.page_link("pages/p3_eval.py", label="☯️ Evaluate Application") 
 
 def resume_x_jd():
   pass
