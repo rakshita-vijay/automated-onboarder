@@ -122,7 +122,7 @@ css_dark = """
   [data-testid="stTreeSelect"] input[type="checkbox"] {
     filter: invert(1); /* Optional: makes the checkbox white */
   }
-}
+} 
 .outline-btn {
     display: flex;
     align-items: center;
@@ -141,7 +141,7 @@ css_dark = """
 }
 .outline-btn:hover {
     background: #222;
-    border-color: #00FF;
+    border-color: #ffb703;
     color: #fff;
 }
 .outline-btn img {
