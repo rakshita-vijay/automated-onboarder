@@ -129,7 +129,7 @@ css_dark = """
 css_light = """
 <style>
 /* ===== BODY & GENERAL LAYOUT ===== */
-body[data-theme="light"] { background: #ffffff !important; font-family: 'Segoe UI', sans-serif; color: #000 !important; }
+body[data-theme="light"] b { background: #ffffff !important; font-family: 'Segoe UI', sans-serif; color: #000 !important; }
 
 /* ===== MAIN HEADING ===== */ 
 body[data-theme="light"] .stHeading,
