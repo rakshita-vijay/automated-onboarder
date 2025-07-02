@@ -123,7 +123,32 @@ css_dark = """
     filter: invert(1); /* Optional: makes the checkbox white */
   }
 }
-
+.outline-btn {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    padding: 0.8em 1.5em;
+    margin: 1.2em 0;
+    background: transparent;
+    color: #fff;
+    font-size: 1.3em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.14);
+}
+.outline-btn:hover {
+    background: #222;
+    border-color: #ffb703;
+    color: #fff;
+}
+.outline-btn img {
+    width: 2em;
+    height: 2em;
+    margin-right: 0.8em;
+}
 
 
 
