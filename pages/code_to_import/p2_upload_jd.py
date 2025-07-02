@@ -8,7 +8,7 @@ from pypdf import PdfReader
 from streamlit_tree_select import tree_select
 from styles import css_dark  # or css_light, as appropriate
 
-from pages.code_to_import.p1_upload_resume import resume_button 
+from code_to_import.p1_upload_resume import resume_button 
 
 st.markdown(css_dark, unsafe_allow_html=True)
 st.markdown("""
