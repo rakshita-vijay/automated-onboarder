@@ -129,11 +129,11 @@ css_dark = """
     display: block;
     max-width: 350px;
     margin: 18px 0;
-    border: 2px solid #6c63ff;
+    border: 2px solid #fff;
     border-radius: 10px;
     background: transparent;
     padding: 18px 28px;
-    color: #6c63ff;
+    color: #fff;
     font-size: 1.2em;
     font-weight: bold;
     text-decoration: none;
@@ -142,9 +142,9 @@ css_dark = """
     cursor: pointer;
 }
 .stPageLink:hover {
-    background: #6c63ff;
-    color: #fff;
-    box-shadow: 0 4px 16px rgba(108,99,255,0.15);
+    background: #f0f0f0 !important;
+    color: #000 !important;
+    border: 2px solid #000 !important;
 }
 .stPageLink a {
     text-decoration: none !important;
