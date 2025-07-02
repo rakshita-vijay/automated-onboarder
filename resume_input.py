@@ -126,7 +126,7 @@ def upload_resume():
     st.subheader("📂 Uploaded Applicants & Files")
     nodes = build_tree()
     if nodes:
-        tree_select(nodes, checkbox=False, expand_all=True)
+        tree_select(nodes)
     else:
         st.info("No applicant files uploaded yet.") 
 
