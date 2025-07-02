@@ -54,9 +54,7 @@ def main():
         st.session_state.repo = None 
         
     st.divider()
-    st.markdown("### What would you like to do?", unsafe_allow_html=True)
-    # st.page_link("pages/p1_resume.py", label="📄 Upload Resume")
-    # st.page_link("pages/p2_jd.py", label="📝 Upload JD")
+    st.markdown("### What would you like to do?", unsafe_allow_html=True) 
     resume_button()
     jd_button()
     crosscheck_button() 
