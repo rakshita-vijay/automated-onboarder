@@ -141,7 +141,7 @@ css_dark = """
 }
 .outline-btn:hover {
     background: #222;
-    border-color: #ffb703;
+    border-color: #00FF;
     color: #fff;
 }
 .outline-btn img {
