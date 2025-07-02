@@ -137,7 +137,7 @@ def upload_resume():
 
     # Display folder structure
     st.divider()
-    st.subheader("📂 Uploaded Applicants & Files")
+    st.subheader("📂 Uploaded Applicants's Resumes & Files")
     nodes = build_tree()
     if nodes:
         tree_select(nodes)
