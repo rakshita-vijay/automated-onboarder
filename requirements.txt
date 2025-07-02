@@ -4,3 +4,4 @@ python-docx
 pandas
 streamlit-tree-select
 streamlit-tree-selector
+crewai 
