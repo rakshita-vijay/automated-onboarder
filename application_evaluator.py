@@ -42,9 +42,22 @@ def main():
     # st.page_link("pages/p1_resume.py", label="Upload Resume", icon="📄")
     # st.page_link("pages/p2_jd.py", label="Upload JD", icon="📝")
     # st.page_link("pages/p3_eval.py", label="Evaluate Applications", icon="🧮") 
-    st.markdown('<div class="outline-btn">📄 Upload Resume</div>', unsafe_allow_html=True)
-    st.markdown('<div class="outline-btn">📝 Upload JD</div>', unsafe_allow_html=True)
-    st.markdown('<div class="outline-btn">🧮 Evaluate Applications</div>', unsafe_allow_html=True) 
+    # st.markdown('<div class="outline-btn">📄 Upload Resume</div>', unsafe_allow_html=True)
+    # st.markdown('<div class="outline-btn">📝 Upload JD</div>', unsafe_allow_html=True)
+    # st.markdown('<div class="outline-btn">🧮 Evaluate Applications</div>', unsafe_allow_html=True) 
+
+    st.markdown("""
+    <a href="/upload-resume/" style="text-decoration:none;">
+        <div class="outline-btn">📄 Upload Resume</div>
+    </a>
+    <a href="/upload-jd/" style="text-decoration:none;">
+        <div class="outline-btn">📝 Upload JD</div>
+    </a>
+    <a href="/evaluation/" style="text-decoration:none;">
+        <div class="outline-btn">🧮 Evaluate Applications</div>
+    </a>
+    """, unsafe_allow_html=True)
+
     
     # upload_resume()
     # upload_jd()
