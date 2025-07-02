@@ -109,7 +109,7 @@ def upload_jd():
                     save_and_extract_jd(jd_file, jd_name.strip())
                 except Exception as e:
                     st.error(f"Error processing {jd_file.name}: {str(e)}")  
-                st.success(f"JD '{jd_name}' extracted and saved as {os.path.basename(txt_path)}.")
+                st.success(f"JD '{jd_name}' extracted and saved as {os.path.basename(jd_file)}.")
 
     # GitHub integration for JD folder
     st.divider()
