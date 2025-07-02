@@ -1,41 +1,16 @@
-css = """
+css_dark = """
 <style>
-/* ===== BODY & GENERAL LAYOUT ===== */
-@media (prefers-color-scheme: light) {
-    body { background: #ffffff !important; font-family: 'Segoe UI', sans-serif; color: #000 !important; }
-}
+/* ===== BODY & GENERAL LAYOUT ===== */ 
 @media (prefers-color-scheme: dark) {
     body { background: #181920 !important; font-family: 'Segoe UI', sans-serif; color: #fff !important; }
 }
 
-/* ===== MAIN HEADING ===== */
-@media (prefers-color-scheme: light) {
-    .stHeading, h1, .stTitle { color: #000 !important; background: #fff !important; font-weight: 900; letter-spacing: 1px; white-space: nowrap; text-align: center; }
-}
+/* ===== MAIN HEADING ===== */ 
 @media (prefers-color-scheme: dark) {
     h1, .stTitle { color: #fff !important; font-weight: 900; letter-spacing: 1px; white-space: nowrap; text-align: center; }
 }
 
-/* ===== TEXT INPUT FIELDS ===== */
-@media (prefers-color-scheme: light) {
-    /*[data-testid="stTextInput"] input {
-        background-color: #ffffff !important;
-        color: #000 !important;
-        border: 1.5px solid #000 !important;
-        border-radius: 10px !important;
-        font-size: 1.1rem !important;
-    }*/
-    [data-testid="stTextInput"] input {
-        background-color: #e6f7ff !important;
-        border-radius: 10px !important;
-        color: #222 !important;
-        border: 1.5px solid #a5b4fc !important;
-        font-size: 1.1rem !important;
-    }
-    [data-testid="stTextInput"] input::placeholder { color: #666 !important; opacity: 1 !important; font-style: italic; }
-    [data-testid="stTextInput"] label { color: #000 !important; font-weight: bold; }
-} 
- 
+/* ===== TEXT INPUT FIELDS ===== */ 
 @media (prefers-color-scheme: dark) {
     [data-testid="stTextInput"] input {
         background-color: #181920 !important;
@@ -48,18 +23,7 @@ css = """
     [data-testid="stTextInput"] label { color: #fff !important; font-weight: bold; }
 }
 
-/* ===== FILE UPLOADER CONTAINER ===== */
-@media (prefers-color-scheme: light) {
-    .stFileUploader {
-        border: 2px dashed #000 !important;
-        background: #ffffff !important;
-        border-radius: 12px !important;
-    }
-    [data-testid="stFileUploader"] > div > div {
-        background-color: #ffffff !important;
-        border-radius: 10px !important;
-    }
-}
+/* ===== FILE UPLOADER CONTAINER ===== */ 
 @media (prefers-color-scheme: dark) {
     .stFileUploader {
         border: 2px dashed #fff !important;
@@ -72,13 +36,7 @@ css = """
     }
 }
 
-/* ===== FILE UPLOADER DROPZONE TEXT ===== */
-@media (prefers-color-scheme: light) {
-    [data-testid="stFileUploaderDropzone"] * { color: #000 !important; opacity: 1 !important; text-shadow: none !important; }
-    [data-testid="stFileUploader"] button {
-        color: #000 !important; border-color: #000 !important; background-color: #fff !important;
-    }
-}
+/* ===== FILE UPLOADER DROPZONE TEXT ===== */ 
 @media (prefers-color-scheme: dark) {
     [data-testid="stFileUploaderDropzone"] * { color: #fff !important; opacity: 1 !important; text-shadow: 0 0 2px #000; }
     [data-testid="stFileUploader"] button {
@@ -86,19 +44,7 @@ css = """
     }
 }
 
-/* ===== UPLOADED FILE INFO DISPLAY ===== */
-@media (prefers-color-scheme: light) {
-    [data-testid="stFileUploader"] .uploadedFile,
-    [data-testid="stFileUploader"] [data-testid="fileStatus"],
-    [data-testid="stFileUploader"] div[data-testid="stFileUploaderDropzone"] + div {
-        background-color: #ffffff !important;
-        color: #000 !important;
-        border: 1px solid #000 !important;
-        border-radius: 8px !important;
-        padding: 8px !important;
-        margin: 5px 0 !important;
-    }
-}
+/* ===== UPLOADED FILE INFO DISPLAY ===== */ 
 @media (prefers-color-scheme: dark) {
     [data-testid="stFileUploader"] .uploadedFile,
     [data-testid="stFileUploader"] [data-testid="fileStatus"],
@@ -112,25 +58,7 @@ css = """
     }
 }
 
-/* ===== PROCESS FILES BUTTON ===== */
-@media (prefers-color-scheme: light) {
-    .stButton>button {
-        background: #ffffff !important;
-        color: #000 !important;
-        border: 2px solid #000 !important;
-        font-weight: bold;
-        border-radius: 6px;
-        font-size: 1.1rem;
-        padding: 0.5em 2em;
-        margin-top: 0.5em;
-        transition: background 0.3s;
-    }
-    .stButton>button:hover {
-        background: #f0f0f0 !important;
-        color: #000 !important;
-        border: 2px solid #000 !important;
-    }
-}
+/* ===== PROCESS FILES BUTTON ===== */ 
 @media (prefers-color-scheme: dark) {
     .stButton>button {
         background: #181920 !important;
@@ -150,15 +78,7 @@ css = """
     }
 }
 
-/* ===== ALERTS & NOTIFICATIONS ===== */
-@media (prefers-color-scheme: light) {
-    .stAlert {
-        background-color: #ffffff !important;
-        color: #000 !important;
-        border: 1px solid #000 !important;
-        border-radius: 8px;
-    }
-}
+/* ===== ALERTS & NOTIFICATIONS ===== */ 
 @media (prefers-color-scheme: dark) {
     .stAlert {
         background-color: #181920 !important;
@@ -168,22 +88,7 @@ css = """
     }
 }
 
-/* ===== FOLDER STRUCTURE DISPLAY ===== */
-@media (prefers-color-scheme: light) {
-    .folder-box {
-        background: #ffffff !important;
-        color: #000 !important;
-        border: 1px solid #000 !important;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px #ddd;
-        padding: 1em;
-        margin-bottom: 1em;
-    }
-    .stMarkdown ul {
-        margin-left: 1.5em;
-        color: #000 !important;
-    }
-}
+/* ===== FOLDER STRUCTURE DISPLAY ===== */ 
 @media (prefers-color-scheme: dark) {
     .folder-box {
         background: #181920 !important;
@@ -200,30 +105,13 @@ css = """
     }
 }
 
-/* ===== STREAMLIT SIDEBAR (if used) ===== */
-@media (prefers-color-scheme: light) {
-    .css-1d391kg {
-        background-color: #ffffff !important;
-        color: #000 !important;
-    }
-}
+/* ===== STREAMLIT SIDEBAR (if used) ===== */ 
 @media (prefers-color-scheme: dark) {
     .css-1d391kg {
         background-color: #181920 !important;
         color: #fff !important;
     }
-}   
-/* Make all text in the tree select widget black in light mode */
-@media (prefers-color-scheme: light) {
-  [data-testid="stTreeSelect"] span,
-  [data-testid="stTreeSelect"] label,
-  [data-testid="stTreeSelect"] div {
-    color: #000 !important;
-  }
-  [data-testid="stTreeSelect"] input[type="checkbox"] {
-    filter: invert(1); /* Optional: makes the checkbox white */
-  }
-}    
+} 
 /* Make all text in the tree select widget white in dark mode */
 @media (prefers-color-scheme: dark) {
   [data-testid="stTreeSelect"] span,
@@ -235,6 +123,141 @@ css = """
     filter: invert(1); /* Optional: makes the checkbox white */
   }
 } 
+</style> 
+"""
+
+css_light = """
+<style>
+/* ===== BODY & GENERAL LAYOUT ===== */
+@media (prefers-color-scheme: light) {
+    body { background: #ffffff !important; font-family: 'Segoe UI', sans-serif; color: #000 !important; }
+} 
+
+/* ===== MAIN HEADING ===== */
+@media (prefers-color-scheme: light) {
+    .stHeading, h1, .stTitle { color: #000 !important; background: #fff !important; font-weight: 900; letter-spacing: 1px; white-space: nowrap; text-align: center; }
+} 
+/* ===== TEXT INPUT FIELDS ===== */
+@media (prefers-color-scheme: light) {
+    /*[data-testid="stTextInput"] input {
+        background-color: #ffffff !important;
+        color: #000 !important;
+        border: 1.5px solid #000 !important;
+        border-radius: 10px !important;
+        font-size: 1.1rem !important;
+    }*/
+    [data-testid="stTextInput"] input {
+        background-color: #e6f7ff !important;
+        border-radius: 10px !important;
+        color: #222 !important;
+        border: 1.5px solid #a5b4fc !important;
+        font-size: 1.1rem !important;
+    }
+    [data-testid="stTextInput"] input::placeholder { color: #666 !important; opacity: 1 !important; font-style: italic; }
+    [data-testid="stTextInput"] label { color: #000 !important; font-weight: bold; }
+} 
+
+/* ===== FILE UPLOADER CONTAINER ===== */
+@media (prefers-color-scheme: light) {
+    .stFileUploader {
+        border: 2px dashed #000 !important;
+        background: #ffffff !important;
+        border-radius: 12px !important;
+    }
+    [data-testid="stFileUploader"] > div > div {
+        background-color: #ffffff !important;
+        border-radius: 10px !important;
+    }
+} 
+
+/* ===== FILE UPLOADER DROPZONE TEXT ===== */
+@media (prefers-color-scheme: light) {
+    [data-testid="stFileUploaderDropzone"] * { color: #000 !important; opacity: 1 !important; text-shadow: none !important; }
+    [data-testid="stFileUploader"] button {
+        color: #000 !important; border-color: #000 !important; background-color: #fff !important;
+    }
+} 
+
+/* ===== UPLOADED FILE INFO DISPLAY ===== */
+@media (prefers-color-scheme: light) {
+    [data-testid="stFileUploader"] .uploadedFile,
+    [data-testid="stFileUploader"] [data-testid="fileStatus"],
+    [data-testid="stFileUploader"] div[data-testid="stFileUploaderDropzone"] + div {
+        background-color: #ffffff !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+        border-radius: 8px !important;
+        padding: 8px !important;
+        margin: 5px 0 !important;
+    }
+} 
+
+/* ===== PROCESS FILES BUTTON ===== */
+@media (prefers-color-scheme: light) {
+    .stButton>button {
+        background: #ffffff !important;
+        color: #000 !important;
+        border: 2px solid #000 !important;
+        font-weight: bold;
+        border-radius: 6px;
+        font-size: 1.1rem;
+        padding: 0.5em 2em;
+        margin-top: 0.5em;
+        transition: background 0.3s;
+    }
+    .stButton>button:hover {
+        background: #f0f0f0 !important;
+        color: #000 !important;
+        border: 2px solid #000 !important;
+    }
+} 
+
+/* ===== ALERTS & NOTIFICATIONS ===== */
+@media (prefers-color-scheme: light) {
+    .stAlert {
+        background-color: #ffffff !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+        border-radius: 8px;
+    }
+} 
+
+/* ===== FOLDER STRUCTURE DISPLAY ===== */
+@media (prefers-color-scheme: light) {
+    .folder-box {
+        background: #ffffff !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px #ddd;
+        padding: 1em;
+        margin-bottom: 1em;
+    }
+    .stMarkdown ul {
+        margin-left: 1.5em;
+        color: #000 !important;
+    }
+} 
+
+/* ===== STREAMLIT SIDEBAR (if used) ===== */
+@media (prefers-color-scheme: light) {
+    .css-1d391kg {
+        background-color: #ffffff !important;
+        color: #000 !important;
+    }
+}
+
+/* Make all text in the tree select widget black in light mode */
+@media (prefers-color-scheme: light) {
+  [data-testid="stTreeSelect"] span,
+  [data-testid="stTreeSelect"] label,
+  [data-testid="stTreeSelect"] div {
+    color: #000 !important;
+  }
+  [data-testid="stTreeSelect"] input[type="checkbox"] {
+    filter: invert(1); /* Optional: makes the checkbox white */
+  }
+}  
 </style> 
 """
 
@@ -253,7 +276,7 @@ css = """
 
 
 
-css_black = """  
+css_perfect_black = """  
 <style>
 /* ===== BODY & GENERAL LAYOUT ===== */
 /* Light Mode: White background */
