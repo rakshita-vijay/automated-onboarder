@@ -70,7 +70,8 @@ def upload_jd():
 
     st.header("📄 Upload a Job Description (JD)")
     jd_file = st.file_uploader(
-        "Upload a JD file (DOCX, PDF, or TXT)",
+        "Upload a JD file",
+        label_visibility="collapsed",
         type=["docx", "pdf", "txt"],
         key="jd_uploader",
         help="Upload a single JD file (DOCX, PDF, or TXT)."
