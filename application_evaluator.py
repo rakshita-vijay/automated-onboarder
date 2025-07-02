@@ -43,6 +43,9 @@ def main():
     st.page_link("pages/p2_jd.py", label="Upload JD", icon="📝")
     st.page_link("pages/p3_eval.py", label="Evaluate Applications", icon="🧮")
     
+    st.set_page_config(page_title="Automated Onboarder", page_icon="📄")
+    st.sidebar.title("Automated Onboarder")
+    
     # upload_resume()
     # upload_jd()
 
