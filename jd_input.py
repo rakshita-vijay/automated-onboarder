@@ -1,0 +1,89 @@
+# jd_input.py
+
+import streamlit as st
+import os
+from docx import Document
+from pypdf import PdfReader
+from streamlit_tree_select import tree_select
+from styles import css_dark  # Or css_light, as appropriate
+
+st.markdown(css_dark, unsafe_allow_html=True)
+
+def extract_docx(file_path):
+    doc = Document(file_path)
+    return "\n".join([para.text for para in doc.paragraphs])
+
+def extract_pdf(file_path):
+    with open(file_path, "rb") as f:
+        reader = PdfReader(f)
+        return "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+
+def extract_txt(file_path):
+    with open(file_path, "r", encoding="utf-8") as f:
+        return f.read()
+
+def save_and_extract_jd(jd_file, jd_name):
+    jd_dir = "JDs"
+    os.makedirs(jd_dir, exist_ok=True)
+    ext = jd_file.name.split(".")[-1].lower()
+    jd_path = os.path.join(jd_dir, f"{jd_name}.{ext}")
+    with open(jd_path, "wb") as f:
+        f.write(jd_file.getbuffer())
+    # Extract text
+    if ext == "docx":
+        text = extract_docx(jd_path)
+    elif ext == "pdf":
+        text = extract_pdf(jd_path)
+    else:
+        text = extract_txt(jd_path)
+    txt_path = os.path.join(jd_dir, f"{jd_name}.txt")
+    with open(txt_path, "w", encoding="utf-8") as f:
+        f.write(text)
+    return txt_path
+
+def build_jd_tree(jd_dir="JDs"):
+    nodes = []
+    if os.path.exists(jd_dir):
+        for file in sorted(os.listdir(jd_dir)):
+            if file.endswith(".txt"):
+                nodes.append({"label": file[:-4], "value": file})
+    return nodes
+
+def upload_jd():
+    st.header("📄 Upload a Job Description (JD)")
+    jd_file = st.file_uploader(
+        "Upload a JD file (DOCX, PDF, or TXT)",
+        type=["docx", "pdf", "txt"],
+        key="jd_uploader",
+        help="Upload a single JD file (DOCX, PDF, or TXT)."
+    )
+    jd_name = st.text_input(
+        "📝 JD Name",
+        placeholder="Enter a name for this JD (e.g., Web Developer)",
+        key="jd_name"
+    )
+
+    if st.button("Save JD"):
+        if jd_file is None:
+            st.warning("Please upload a JD file.")
+        elif not jd_name.strip():
+            st.warning("Please enter a JD name.")
+        else:
+            with st.spinner("Extracting and saving JD..."):
+                txt_path = save_and_extract_jd(jd_file, jd_name.strip())
+                st.success(f"JD '{jd_name}' extracted and saved as {os.path.basename(txt_path)}.")
+
+    st.divider()
+    st.subheader("📂 Available Job Descriptions")
+    jd_nodes = build_jd_tree()
+    if jd_nodes:
+        selected = tree_select(jd_nodes, checkbox=True)
+        if selected:
+            jd_file = selected[0]
+            jd_path = os.path.join("JDs", jd_file)
+            with open(jd_path, "r", encoding="utf-8") as f:
+                jd_content = f.read()
+            st.markdown(f"#### JD: {jd_file[:-4]}")
+            st.code(jd_content, language="text")
+    else:
+        st.info("No JDs uploaded yet.") 
