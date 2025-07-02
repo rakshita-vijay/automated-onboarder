@@ -9,8 +9,8 @@ import tempfile
 import pandas as pd
 from streamlit_tree_select import tree_select 
 
-from pages.p1_upload_resume import upload_resume
-from pages.p2_upload_jd import upload_jd 
+# from pages.p1_upload_resume import upload_resume
+# from pages.p2_upload_jd import upload_jd 
 
 from styles import css_dark 
 st.markdown(css_dark, unsafe_allow_html=True)  
@@ -37,8 +37,14 @@ def main():
     if 'repo' not in st.session_state:
         st.session_state.repo = None 
         
-    upload_resume()
-    upload_jd()
+    st.divider()
+    st.markdown("### What would you like to do?", unsafe_allow_html=True)
+    st.page_link("pages/p1_resume.py", label="Upload Resume", icon="📄")
+    st.page_link("pages/p2_jd.py", label="Upload JD", icon="📝")
+    st.page_link("pages/p3_eval.py", label="Evaluate Applications", icon="🧮")
+    
+    # upload_resume()
+    # upload_jd()
 
 if __name__ == "__main__":
     main()
