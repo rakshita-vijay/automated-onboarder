@@ -9,9 +9,6 @@ import tempfile
 import pandas as pd
 from streamlit_tree_select import tree_select 
 
-# from pages.p1_upload_resume import upload_resume
-# from pages.p2_upload_jd import upload_jd 
-
 from styles import css_dark 
 st.markdown(css_dark, unsafe_allow_html=True)  
 
@@ -41,10 +38,7 @@ def main():
     st.markdown("### What would you like to do?", unsafe_allow_html=True)
     st.page_link("pages/p1_resume.py", label="📄 Upload Resume")
     st.page_link("pages/p2_jd.py", label="📝 Upload JD")
-    st.page_link("pages/p3_eval.py", label="🧮 Evaluate Applications")  
-    
-    # upload_resume()
-    # upload_jd()
+    st.page_link("pages/p3_eval.py", label="🧮 Evaluate Applications") 
 
 if __name__ == "__main__":
-    main()
+    main() 
