@@ -25,7 +25,7 @@ st.markdown("""
 def crosscheck_button():
   st.page_link("pages/p3_eval.py", label="☯️ Evaluate Application") 
 
-def resume_x_jd():
+def resume_x_jd(): 
   pass
 
 
