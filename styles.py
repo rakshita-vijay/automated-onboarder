@@ -122,15 +122,16 @@ css_dark = """
   [data-testid="stTreeSelect"] input[type="checkbox"] {
     filter: invert(1); /* Optional: makes the checkbox white */
   }
-}   
+}
 
 
 
 
 
 
+# css_light 
 
-# css_light =  
+
 
 
 
