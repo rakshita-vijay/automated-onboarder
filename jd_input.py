@@ -119,7 +119,7 @@ def upload_jd():
     st.subheader("📂 Available Job Descriptions")
     jd_nodes = build_jd_tree()
     if jd_nodes:
-        selected = tree_select(jd_nodes, checkbox=True)
+        selected = tree_select(jd_nodes)
         if selected:
             jd_file = selected[0]
             jd_path = os.path.join("JDs", jd_file)
