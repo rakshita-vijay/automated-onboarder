@@ -9,7 +9,8 @@ import tempfile
 import pandas as pd
 from streamlit_tree_select import tree_select 
 
-from resume_input import setup_git_repo, extract_docx, extract_pdf, extract_txt, build_tree, upload_resume
+from resume_input import upload_resume
+from jd_input import upload_jd
 
 from styles import css_dark 
 st.markdown(css_dark, unsafe_allow_html=True)  
@@ -37,6 +38,7 @@ def main():
         st.session_state.repo = None 
         
     upload_resume()
+    upload_jd()
 
 if __name__ == "__main__":
     main()
