@@ -102,14 +102,12 @@ def upload_jd():
         elif not jd_name.strip():
             st.warning("JD name has not been entered :(")
         else:
-            with st.spinner("Extracting and saving JD..."):  
-                # txt_path = save_and_extract_jd(jd_file, jd_name.strip())
-                # st.success(f"JD '{jd_name}' extracted and saved as {os.path.basename(txt_path)}.") 
+            with st.spinner("Extracting and saving JD..."):   
                 try:
                     save_and_extract_jd(jd_file, jd_name.strip())
                 except Exception as e:
                     st.error(f"Error processing {jd_file.name}: {str(e)}")  
-                st.success(f"JD '{jd_name}' extracted and saved as {jd_file}.")
+                st.success(f"JD '{jd_name}' extracted and saved as {jd_file}!")
 
     # GitHub integration for JD folder
     st.divider()
