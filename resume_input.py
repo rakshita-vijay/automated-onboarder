@@ -143,7 +143,9 @@ def upload_resume():
                     st.error(f"Push failed: {str(e)}") 
         
         # Display folder structure 
-        st.markdown("<h3 style='margin-top:2em;'>📁 <u>Folder Structure</u></h3>", unsafe_allow_html=True)
+        # st.markdown("<h3 style='margin-top:2em;'>📁 <u>Folder Structure</u></h3>", unsafe_allow_html=True)
+        st.divider()
+        st.subheader("📁 Folder Structure")
         
         scraped_info_path = "scraped_info"
         if os.path.exists(scraped_info_path):
