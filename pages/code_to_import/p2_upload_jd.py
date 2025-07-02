@@ -8,8 +8,6 @@ from pypdf import PdfReader
 from streamlit_tree_select import tree_select
 from styles import css_dark  # or css_light, as appropriate
 
-from code_to_import.p1_upload_resume import resume_button 
-
 st.markdown(css_dark, unsafe_allow_html=True)
 st.markdown("""
 <style> 
@@ -138,6 +136,4 @@ def upload_jd():
     if nodes:
         tree_select(nodes)
     else:
-        st.info("No JDs uploaded yet.")
-
-    resume_button()
+        st.info("No JDs uploaded yet.") 
