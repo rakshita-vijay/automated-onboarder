@@ -39,12 +39,9 @@ def main():
         
     st.divider()
     st.markdown("### What would you like to do?", unsafe_allow_html=True)
-    # st.page_link("pages/p1_resume.py", label="Upload Resume", icon="📄")
-    # st.page_link("pages/p2_jd.py", label="Upload JD", icon="📝")
-    # st.page_link("pages/p3_eval.py", label="Evaluate Applications", icon="🧮") 
-    st.markdown('<div class="outline-btn">📄 Upload Resume</div>', unsafe_allow_html=True)
-    st.markdown('<div class="outline-btn">📝 Upload JD</div>', unsafe_allow_html=True)
-    st.markdown('<div class="outline-btn">🧮 Evaluate Applications</div>', unsafe_allow_html=True) 
+    st.page_link("pages/p1_resume.py", label="Upload Resume", icon="📄")
+    st.page_link("pages/p2_jd.py", label="Upload JD", icon="📝")
+    st.page_link("pages/p3_eval.py", label="Evaluate Applications", icon="🧮")  
     
     # upload_resume()
     # upload_jd()
