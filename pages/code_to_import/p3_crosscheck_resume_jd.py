@@ -36,7 +36,22 @@ def list_txt_files(directory):
     if not os.path.exists(directory):
         return []
     return sorted([f for f in os.listdir(directory) if f.endswith('.txt')])
-
+ 
+def list_txt_files_recursive_sorted(directory):
+    """
+    Recursively find all .txt files in all subfolders of 'directory', 
+    and return a sorted list of their full paths (sorted alphabetically by filename).
+    """
+    txt_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith('.txt'):
+                full_path = os.path.join(root, file)
+                txt_files.append(full_path)
+              
+    txt_files.sort(key=lambda x: os.path.basename(x).lower())
+    return txt_files 
+  
 def get_applicant_name_from_filename(filename):
     """Extract applicant name from resume filename (e.g., 'anupam.txt' -> 'anupam')."""
     return os.path.splitext(filename)[0]
@@ -70,9 +85,9 @@ def resume_x_jd():
     scraped_info_dir = "scraped_info"
     jd_dir = "JDs"
 
-    # List .txt files in both directories
-    resume_files = list_txt_files(scraped_info_dir)
-    jd_files = list_txt_files(jd_dir)
+    # List .txt files in both directories 
+    resume_files = list_txt_files_recursive_sorted(scraped_info_dir)
+    jd_files = list_txt_files_recursive_sorted(jd_dir)
 
     # Two columns for dropdowns
     col1, col2 = st.columns([1, 1])
