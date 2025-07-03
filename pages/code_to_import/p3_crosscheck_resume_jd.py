@@ -104,16 +104,12 @@ def resume_x_jd():
         jd_content = display_jd_content(jd_dir, selected_jd)
 
         # Display box with 3 columns: applicant, X, JD
-        box_col1, box_col2, box_col3 = st.columns([2, 1, 5])
+        box_col1, box_col2, box_col3 = st.columns([5, 1, 5])
         with box_col1:
             st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #222; color: #fff; text-align: center; font-weight: bold;'>{applicant_name}</div>", unsafe_allow_html=True)
         with box_col2:
             st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #333; color: #fff; text-align: center; font-size: 1.5em;'>×</div>", unsafe_allow_html=True)
         with box_col3:
             st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #222; color: #fff; text-align: center; font-weight: bold;'>{jd_name}</div>", unsafe_allow_html=True)
-
-        # Optionally: show JD content below
-        st.markdown("#### Job Description Content")
-        st.code(jd_content, language="text")
     else:
         st.info("Please select both a resume and a JD file to compare.") 
