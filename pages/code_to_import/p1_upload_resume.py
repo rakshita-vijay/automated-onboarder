@@ -53,10 +53,31 @@ def extract_txt(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
 
+'''
 # --- SUPPORTING DOC NUMBERING ---
 def get_next_supporting_number(applicant_dir, first_name, last_name):
     """Return the next supporting doc number for this applicant."""
     prefix = f"{first_name}_{last_name}_supporting_"
+    existing = [
+        fname for fname in os.listdir(applicant_dir)
+        if fname.startswith(prefix) and '.' in fname
+    ]
+    nums = []
+    for fname in existing:
+        try:
+            num = int(fname.replace(prefix, '').split('.')[0])
+            nums.append(num)
+        except Exception:
+            continue
+    if nums:
+        return max(nums) + 1
+    else:
+        return 1
+'''
+# --- SUPPORTING DOC NUMBERING (CHANGED) --- 
+def get_next_supporting_number(applicant_dir, name_prefix):
+    """Return the next supporting doc number for this applicant."""
+    prefix = f"{name_prefix}_supporting_"
     existing = [
         fname for fname in os.listdir(applicant_dir)
         if fname.startswith(prefix) and '.' in fname
@@ -108,7 +129,8 @@ def build_tree(root="scraped_info"):
                         children.append({"label": file, "value": f"{folder}/{file}"})
                 nodes.append({"label": folder, "value": folder, "children": children})
     return nodes
-  
+
+'''
 # --- UI FOR FILE TYPE SELECTION ---
 def get_file_type_selections(uploaded_files):
     """Let user specify which file is the resume, and which are supporting docs."""
@@ -136,7 +158,44 @@ def get_file_type_selections(uploaded_files):
                 st.checkbox(f"{file_labels[i]} is a supporting document", value=True)
             )
     return main_resume_idx, supporting_docs
+'''
 
+# --- UI FOR FILE TYPE SELECTION (CHANGED) ---
+def get_file_type_selections(uploaded_files):
+    """
+    Let user specify which file is the resume (or none), and which are supporting docs.
+    Returns: main_resume_idx (int or None), supporting_docs (list of bool)
+    """
+    st.write("### File Classification")
+    file_labels = [f.name for f in uploaded_files]
+    main_resume_idx = None
+
+    if len(uploaded_files) > 1:
+        options = ["None (all are supporting docs)"] + file_labels
+        selection = st.radio(
+            "Select which file is the main resume (if any):",
+            options=list(range(len(options))),
+            format_func=lambda i: options[i],
+            index=0
+        )
+        if selection == 0:
+            main_resume_idx = None
+        else:
+            main_resume_idx = selection - 1
+    else:
+        # Only one file: ask if it's a resume
+        is_resume = st.checkbox(f"{file_labels[0]} is the main resume", value=True)
+        main_resume_idx = 0 if is_resume else None
+
+    # Supporting docs: all except main resume (or all if none selected)
+    supporting_docs = []
+    for i, f in enumerate(uploaded_files):
+        if main_resume_idx is not None and i == main_resume_idx:
+            supporting_docs.append(False)
+        else:
+            supporting_docs.append(True)
+    return main_resume_idx, supporting_docs
+  
 # --- MAIN UPLOAD FUNCTION ---
 def upload_resume():
     # Session state
