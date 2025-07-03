@@ -1,0 +1,24 @@
++------+------------+----------------------------+----------+--------------------------+
+| S.NO |    DATE    | DESCRIPTION                |   AMOUNT | NOTES                    |
++------+------------+----------------------------+----------+--------------------------+
+|  01  | 28/06/2025 | Groceries at SuperMart     |    45.75 | Weekly shopping          |
+|  02  | 28/06/2025 | Bookstore purchase         |    32.99 | Educational              |
+|  03  | 29/06/2025 | Restaurant dinner          |    60.50 | Anniversary celebration  |
+|  04  | 29/06/2025 | Refund for shoes           |   -35.00 | Returned item            |
+|  05  | 30/06/2025 | Monthly gym fee            |    30.00 | Subscription             |
+|  06  | 30/06/2025 | Alice - Coffee @ Starbucks |     5.25 | Morning coffee           |
+|  07  | 01/07/2025 | Alice - Coffee @ Starbucks |     5.25 | Morning coffee           |
+|  08  | 01/07/2025 | Alice - Lunch              |    12.50 | Workday lunch            |
+|  09  | 02/07/2025 | Alice - Coffee @ Starbucks |     5.25 | Morning coffee           |
+|  10  | 02/07/2025 | Online course fee          |   199.99 | Professional development |
+|  11  | 03/07/2025 | Alice - Coffee @ Starbucks |     5.25 | Morning coffee           |
+|  12  | 03/07/2025 | Electronics purchase       |  1200.00 | New laptop               |
+|  13  | 04/07/2025 | Alice - Coffee @ Starbucks |     5.25 | Morning coffee           |
+|  14  | 04/07/2025 | Refund for laptop          | -1200.00 | Defective product        |
+|  15  | 05/07/2025 | Alice - Coffee @ Starbucks |     5.25 | Morning coffee           |
+|  16  | 05/07/2025 | Hotel booking              |   350.00 | Weekend getaway          |
+|  17  | 06/07/2025 | Alice - Coffee @ Starbucks |     5.25 | Morning coffee           |
+|  18  | 06/07/2025 | Conference tickets         |   500.00 | Tech conference          |
+|  19  | 07/07/2025 | Alice - Coffee @ Starbucks |     5.25 | Morning coffee           |
+|  20  | 07/07/2025 | Bonus income               |  1000.00 | Work bonus               |
++------+------------+----------------------------+----------+--------------------------+
