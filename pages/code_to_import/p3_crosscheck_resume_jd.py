@@ -26,16 +26,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def crosscheck_button():
-  st.page_link("pages/p3_eval.py", label="☯️ Evaluate Application")  
-
-import streamlit as st
-import os
-
-def list_txt_files(directory):
-    """Return a sorted list of .txt files in the given directory."""
-    if not os.path.exists(directory):
-        return []
-    return sorted([f for f in os.listdir(directory) if f.endswith('.txt')])
+  st.page_link("pages/p3_eval.py", label="☯️ Evaluate Application") 
  
 def list_txt_files_recursive_sorted(directory):
     """
@@ -50,7 +41,7 @@ def list_txt_files_recursive_sorted(directory):
                 txt_files.append(full_path)
               
     txt_files.sort(key=lambda x: os.path.basename(x).lower())
-    return txt_files 
+    return '/'.join((((txt_files.split('/')).split('\\')).split('\\\\'))[1:])
   
 def get_applicant_name_from_filename(filename):
     """Extract applicant name from resume filename (e.g., 'anupam.txt' -> 'anupam')."""
