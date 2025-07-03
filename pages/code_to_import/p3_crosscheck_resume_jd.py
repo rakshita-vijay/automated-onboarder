@@ -55,7 +55,12 @@ def display_jd_content(jd_dir, jd_file):
 
 def resume_x_jd():
     st.title("🧮 Evaluate Applications")
-    st.write("This page will allow you to compare resumes with job descriptions.")
+    # st.write("This page will allow you to compare resumes with job descriptions.")
+    st.markdown("""
+      <div style='text-align:center; font-size:1.2em;'>
+          <span><b>This page will allow you to compare resumes with job descriptions.</span><br> 
+      </div>
+      """, unsafe_allow_html=True)
 
     # Navigation buttons (already defined elsewhere)
     
