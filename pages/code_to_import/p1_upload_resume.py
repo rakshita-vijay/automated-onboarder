@@ -195,7 +195,8 @@ def get_file_type_selections(uploaded_files):
         else:
             supporting_docs.append(True)
     return main_resume_idx, supporting_docs
-  
+
+'''
 # --- MAIN UPLOAD FUNCTION ---
 def upload_resume():
     # Session state
@@ -260,7 +261,72 @@ def upload_resume():
                         except Exception as e:
                             st.error(f"Error processing {uploaded_file.name}: {str(e)}")
                 st.success(f"Successfully processed {len(uploaded_files)} files for {applicant_name}!")
+'''
 
+def upload_resume():
+    # Session state
+    if 'repo' not in st.session_state:
+        st.session_state.repo = None
+
+    st.header("📄 Upload Resume & Supporting Documents")
+    uploaded_files = st.file_uploader(
+        "Upload files",
+        label_visibility="collapsed",
+        type=["docx", "pdf", "txt"],
+        accept_multiple_files=True,
+        help="Only .docx, .pdf, or .txt files are allowed.",
+        key="file_uploader"
+    )
+
+    applicant_name = st.text_input(
+        "👤 Applicant Name",
+        placeholder="Enter applicant name for these files (e.g., Jane Doe)"
+    )
+
+    # --- CHANGES: File type selection UI ---
+    if uploaded_files and applicant_name:
+        names = applicant_name.strip().split()
+        if len(names) < 1:
+            st.warning("Please enter at least a first name.")
+        else:
+            # Join all parts with _
+            name_prefix = "_".join(names)
+            main_resume_idx, supporting_docs = get_file_type_selections(uploaded_files)
+    else:
+        main_resume_idx, supporting_docs = None, []
+
+    if st.button("Process Files"):
+        if not uploaded_files:
+            st.warning("There are no files to process :(")
+        elif not applicant_name:
+            st.warning("Applicant's name has not been entered :(")
+        else:
+            names = applicant_name.strip().split()
+            if len(names) < 1:
+                st.warning("Please enter at least a first name.")
+            else:
+                name_prefix = "_".join(names)
+                applicant_dir = os.path.join("scraped_info", name_prefix)
+                os.makedirs(applicant_dir, exist_ok=True)
+                # Count existing supporting docs for numbering
+                next_supp_num = get_next_supporting_number(applicant_dir, name_prefix)
+                with st.spinner("Extracting and saving files..."):
+                    for idx, uploaded_file in enumerate(uploaded_files):
+                        file_ext = uploaded_file.name.split(".")[-1].lower()
+                        # Determine filename
+                        if main_resume_idx is not None and idx == main_resume_idx:
+                            save_name = f"{name_prefix}_resume.{file_ext}"
+                        elif supporting_docs and supporting_docs[idx]:
+                            save_name = f"{name_prefix}_supporting_{next_supp_num}.{file_ext}"
+                            next_supp_num += 1
+                        else:
+                            continue
+                        try:
+                            save_and_extract_file(uploaded_file, applicant_dir, save_name)
+                        except Exception as e:
+                            st.error(f"Error processing {uploaded_file.name}: {str(e)}")
+                st.success(f"Successfully processed {len(uploaded_files)} files for {applicant_name}!")
+              
     # GitHub integration (unchanged)
     st.divider()
     st.subheader("GitHub Integration")
