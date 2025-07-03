@@ -36,9 +36,10 @@ def list_txt_files_recursive_sorted(directory):
     txt_files = []
     for root, dirs, files in os.walk(directory):
         for file in files:
-            if file.endswith('.txt'):
-                full_path = os.path.join(root, file)
-                txt_files.append(full_path)
+            if file.endswith('.txt'): 
+                rel_dir = os.path.relpath(root, directory)
+                rel_file = os.path.join(rel_dir, file)
+                txt_files.append(rel_file) 
               
     txt_files.sort(key=lambda x: os.path.basename(x).lower())
     return txt_files
@@ -60,13 +61,7 @@ def display_jd_content(jd_dir, jd_file):
     return "JD file not found."
 
 def resume_x_jd():
-    st.title("🧮 Evaluate Applications")
-    # st.write("This page will allow you to compare resumes with job descriptions.")
-    # st.markdown("""
-    #   <div style='text-align:center; font-size:1.2em;'>
-    #       <span><b>This page will allow you to compare resumes with job descriptions.</span><br> 
-    #   </div>
-    #   """, unsafe_allow_html=True) 
+    st.title("🧮 Evaluate Applications") 
     
     st.divider()
     resume_button()
