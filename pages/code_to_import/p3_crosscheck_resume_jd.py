@@ -49,8 +49,7 @@ def list_txt_files_recursive_sorted(directory):
   
 def get_applicant_name_from_filename(filename):
     """Extract applicant name from resume filename (e.g., 'anupam.txt' -> 'anupam')."""
-    # return os.path.splitext(filename)[0] 
-    return os.path.normpath(filepath).split(os.sep)[0]
+    return os.path.splitext(filename)[0]  
 
 def get_jd_name_from_filename(filename):
     """Extract JD name from JD filename (e.g., 'jd1.txt' -> 'jd1')."""
