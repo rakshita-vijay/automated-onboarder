@@ -95,6 +95,20 @@ def save_and_extract_file(uploaded_file, applicant_dir, save_name):
         f.write(text)
     return text_path
 
+def build_tree(root="scraped_info"):
+    nodes = []
+    if os.path.exists(root):
+        for folder in sorted(os.listdir(root)):
+            folder_path = os.path.join(root, folder)
+            if os.path.isdir(folder_path):
+                children = []
+                for file in sorted(os.listdir(folder_path)):
+                    file_path = os.path.join(folder_path, file)
+                    if os.path.isfile(file_path):
+                        children.append({"label": file, "value": f"{folder}/{file}"})
+                nodes.append({"label": folder, "value": folder, "children": children})
+    return nodes
+  
 # --- UI FOR FILE TYPE SELECTION ---
 def get_file_type_selections(uploaded_files):
     """Let user specify which file is the resume, and which are supporting docs."""
