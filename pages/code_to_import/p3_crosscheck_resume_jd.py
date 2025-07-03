@@ -36,10 +36,13 @@ def list_txt_files_recursive_sorted(directory):
     txt_files = []
     for root, dirs, files in os.walk(directory):
         for file in files:
-            if file.endswith('.txt'): 
-                rel_dir = os.path.relpath(root, directory)
-                rel_file = os.path.join(rel_dir, file)
-                txt_files.append(rel_file) 
+            if file.endswith('.txt'):
+                if directory != "JDs":
+                    rel_dir = os.path.relpath(root, directory)
+                    rel_file = os.path.join(rel_dir, file)
+                    txt_files.append(rel_file) 
+                else:
+                    txt_files.append(file) 
               
     txt_files.sort(key=lambda x: os.path.basename(x).lower())
     return txt_files
