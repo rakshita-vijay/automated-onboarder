@@ -1,1 +1,0 @@
-monthly = 6000, yearly = 72000
