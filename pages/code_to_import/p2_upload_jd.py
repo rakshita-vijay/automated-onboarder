@@ -100,7 +100,7 @@ def upload_jd():
     # ) 
     company_name = st.text_input(
         "🏢 Company Name",
-        value="Company",
+        value="Google",
         placeholder="Enter company name",
         max_chars=50,
         help="Enter the company name for this JD"
@@ -110,7 +110,7 @@ def upload_jd():
     
     position = st.text_input(
         "💼 Position",
-        value="Quantum Engineer",
+        value="Software Engineer",
         placeholder="Enter position (e.g., Web Developer)",
         max_chars=50,
         help="Enter the position for this JD"
