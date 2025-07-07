@@ -30,16 +30,16 @@ st.markdown("""
 } 
 </style>
 """, unsafe_allow_html=True) 
-# st.markdown("""
-# <style>
-# .centered-content {
-#     display: flex;
-#     flex-direction: column;
-#     align-items: center;
-#     justify-content: center;
-# }
-# </style>
-# """, unsafe_allow_html=True)
+st.markdown("""
+<style>
+.centered-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+""", unsafe_allow_html=True)
  
 # Streamlit app
 def app_eval_home_page(): 
