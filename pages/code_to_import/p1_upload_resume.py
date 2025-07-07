@@ -282,10 +282,12 @@ def upload_resume():
         "👤 Applicant Name",
         placeholder="Enter applicant name for these files (e.g., Jane Doe)"
     )
+    appl_name = ' '.join([part.title() for part in applicant_name.strip().split()])
+    applicant_name = appl_name.strip()
 
     # --- CHANGES: File type selection UI ---
     if uploaded_files and applicant_name:
-        names = applicant_name.strip().split()
+        names = applicant_name.strip().split() 
         if len(names) < 1:
             st.warning("Please enter at least a first name.")
         else:
@@ -301,7 +303,7 @@ def upload_resume():
         elif not applicant_name:
             st.warning("Applicant's name has not been entered :(")
         else:
-            names = applicant_name.strip().split()
+            names = applicant_name.strip().split() 
             if len(names) < 1:
                 st.warning("Please enter at least a first name.")
             else:
