@@ -57,7 +57,11 @@ def app_eval_home_page():
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2: 
-        st.markdown("### What would you like to do?", unsafe_allow_html=True) 
+        # st.markdown("### What would you like to do?", unsafe_allow_html=True) 
+        st.markdown("""
+        <div style='text-align:center;'>### What would you like to do?</div>
+        """, unsafe_allow_html=True)
+      
         resume_button()
         jd_button()
         crosscheck_button()  
