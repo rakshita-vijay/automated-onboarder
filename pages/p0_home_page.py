@@ -22,8 +22,8 @@ st.markdown("""
 st.set_page_config(
   page_title="Application Evaluator",
   page_icon="🖋️",
-  layout="wide",
-  initial_sidebar_state="expanded"
+  # initial_sidebar_state="expanded",
+  layout="wide"
 ) 
 
 from the_sidebar import the_sb
