@@ -1,33 +1,4 @@
-import streamlit as st
-
-st.markdown("""
-<style>
-/* Remove all Streamlit sidebar styling for a flat, simple look */
-[data-testid="stSidebar"] {
-    background: none !important;
-    box-shadow: none !important;
-    border: none !important;
-    padding: 0 !important;
-}
-[data-testid="stSidebarNav"] {
-    background: none !important;
-    box-shadow: none !important;
-    border: none !important;
-    padding: 0 !important;
-}
-[data-testid="stSidebarHeader"] {
-    display: none !important;
-}
-[data-testid="stSidebarUserContent"] {
-    padding: 0 !important;
-}
-[data-testid="stSidebar"] * {
-    background: none !important;
-    box-shadow: none !important;
-    border: none !important;
-}
-</style>
-""", unsafe_allow_html=True)
+import streamlit as st 
 
 def the_sb():
   with st.sidebar:  
