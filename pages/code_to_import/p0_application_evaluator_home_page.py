@@ -29,17 +29,7 @@ st.markdown("""
   }
 } 
 </style>
-""", unsafe_allow_html=True) 
-st.markdown("""
-<style>
-.centered-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-</style>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True)  
  
 # Streamlit app
 def app_eval_home_page(): 
@@ -63,13 +53,9 @@ def app_eval_home_page():
     if 'repo' not in st.session_state:
         st.session_state.repo = None 
         
-    st.divider()
-    
-    st.markdown('<div class="centered-content">', unsafe_allow_html=True)
+    st.divider() 
     
     st.markdown("### What would you like to do?", unsafe_allow_html=True)  
     resume_button()
     jd_button()
-    crosscheck_button()
-    
-    st.markdown("</div>", unsafe_allow_html=True) 
+    crosscheck_button() 
