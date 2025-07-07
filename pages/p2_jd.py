@@ -22,8 +22,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
    
 st.set_page_config(
-  page_title="Upload Resume & Supporting Documents",
-  page_icon="📝",
+  page_title="Upload Job Description",
+  page_icon="👔",
   layout="wide",
   initial_sidebar_state="expanded"
 )
