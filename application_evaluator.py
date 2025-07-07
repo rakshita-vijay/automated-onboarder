@@ -26,4 +26,4 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.switch_page("pages/code_to_import/p0_Application_Evaluator.py") 
+st.switch_page("pages/code_to_import/p0_application_evaluator.py") 
