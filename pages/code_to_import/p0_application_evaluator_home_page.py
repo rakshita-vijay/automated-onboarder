@@ -62,7 +62,7 @@ def app_eval_home_page():
     jd_button()
     crosscheck_button()
     
-    st.markdown("</div", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
   
     '''
     col1, col2, col3 = st.columns([1, 2, 1])
