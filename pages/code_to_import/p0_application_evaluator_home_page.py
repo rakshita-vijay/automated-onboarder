@@ -70,6 +70,4 @@ def app_eval_home_page():
     st.markdown("### What would you like to do?", unsafe_allow_html=True) 
     resume_button()
     jd_button()
-    crosscheck_button() 
-
-app_eval_home_page()
+    crosscheck_button()  
