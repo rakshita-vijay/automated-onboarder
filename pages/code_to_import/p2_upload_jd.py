@@ -78,14 +78,14 @@ def build_jd_tree(jd_dir="JDs"):
     return nodes
 
 def jd_button():
-  st.page_link("pages/p2_jd.py", label="📝 Upload JD") 
+  st.page_link("pages/p2_jd.py", label="👔 Upload JD") 
   
 def upload_jd():
     # Session state for Git
     if 'jd_repo' not in st.session_state:
         st.session_state.jd_repo = None
 
-    st.header("📄 Upload a Job Description (JD)")
+    st.header("👔 Upload a Job Description (JD)")
     jd_file = st.file_uploader(
         "Upload a JD file",
         label_visibility="collapsed",
