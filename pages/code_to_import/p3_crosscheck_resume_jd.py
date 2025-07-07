@@ -72,8 +72,55 @@ def resume_x_jd():
     st.divider()
 
     scraped_info_dir = "scraped_info"
-    jd_dir = "JDs"
+    jd_dir = "JDs" 
 
+    # New code: show only file names, but keep mapping to full path
+    resume_files_full = list_txt_files_recursive_sorted(scraped_info_dir)
+    jd_files_full = list_txt_files_recursive_sorted(jd_dir)
+    
+    # Build mapping: filename -> full relative path
+    resume_file_map = {os.path.basename(f): f for f in resume_files_full}
+    jd_file_map = {os.path.basename(f): f for f in jd_files_full}
+
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        selected_resume_name = st.selectbox(
+            "Select Resume File",
+            list(resume_file_map.keys()),
+            index=None,
+            placeholder="Choose a resume...",
+            key="resume_select"
+        )
+    with col2:
+        selected_jd_name = st.selectbox(
+            "Select JD File",
+            list(jd_file_map.keys()),
+            index=None,
+            placeholder="Choose a JD...",
+            key="jd_select"
+        )
+    
+    # Use the mapping to get the full path when needed
+    if selected_resume_name and selected_jd_name:
+        selected_resume = resume_file_map[selected_resume_name]
+        selected_jd = jd_file_map[selected_jd_name]
+        
+        applicant_name = get_applicant_name_from_filename(selected_resume)
+        jd_name = get_jd_name_from_filename(selected_jd)
+        jd_content = display_jd_content(jd_dir, selected_jd)
+
+        # Display box with 3 columns: applicant, X, JD
+        box_col1, box_col2, box_col3 = st.columns([5, 1, 5])
+        with box_col1:
+            st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #222; color: #fff; text-align: center; font-weight: bold;'>{applicant_name}</div>", unsafe_allow_html=True)
+        with box_col2:
+            st.markdown(f"<div style='padding: 0.5em; border: 1px solid #888; border-radius: 8px; background: #333; color: #fff; text-align: center; font-size: 1.5em;'>×</div>", unsafe_allow_html=True)
+        with box_col3:
+            st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #222; color: #fff; text-align: center; font-weight: bold;'>{jd_name}</div>", unsafe_allow_html=True)
+    else:
+        st.info("Please select both a resume and a JD file to compare.")  
+        
+previous_last_part = '''
     # List .txt files in both directories 
     resume_files = list_txt_files_recursive_sorted(scraped_info_dir)
     jd_files = list_txt_files_recursive_sorted(jd_dir)
@@ -113,3 +160,4 @@ def resume_x_jd():
             st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #222; color: #fff; text-align: center; font-weight: bold;'>{jd_name}</div>", unsafe_allow_html=True)
     else:
         st.info("Please select both a resume and a JD file to compare.") 
+'''
