@@ -26,7 +26,7 @@ st.set_page_config(
   layout="wide"
 ) 
 
-from the_sidebar import the_sb
-the_sb()
+# from the_sidebar import the_sb
+# the_sb()
     
 app_eval_home_page() 
