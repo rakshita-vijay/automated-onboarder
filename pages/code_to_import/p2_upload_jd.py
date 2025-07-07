@@ -93,20 +93,42 @@ def upload_jd():
         key="jd_uploader",
         help="Upload a single JD file (DOCX, PDF, or TXT)."
     )
-    jd_name = st.text_input(
-        "📝 JD Name",
-        placeholder="Enter a name for this JD (e.g., Web Developer)",
-        key="jd_name"
+    # jd_name = st.text_input(
+    #     "📝 JD Name",
+    #     placeholder="Enter a name for this JD (e.g., Web Developer)",
+    #     key="jd_name"
+    # ) 
+    company_name = st.text_input(
+        "🏢 Company Name",
+        value="Company",
+        placeholder="Enter company name",
+        max_chars=50,
+        help="Enter the company name for this JD"
+    ) 
+    comp_name = '_'.join([part_of.title() for part_of in company_name.strip().split()])
+    safe_company_name = comp_name.strip()
+    
+    position = st.text_input(
+        "💼 Position",
+        value="Quantum Engineer",
+        placeholder="Enter position (e.g., Web Developer)",
+        max_chars=50,
+        help="Enter the position for this JD"
     )
+    posie = '_'.join([part_of.title() for part_of in position.strip().split()])
+    safe_position = posie.strip()
 
     if st.button("Process JD"):
         if jd_file is None:
-            st.warning("There are no JDs to process :(")
-        elif not jd_name.strip():
-            st.warning("JD name has not been entered :(")
+            st.warning("There are no JDs to process :(") 
+        elif not company_name.strip():
+            st.warning("Company name has not been entered :(")
+        elif not position.strip():
+            st.warning("Position has not been entered :(") 
         else:
             with st.spinner("Extracting and saving JD..."):   
                 try:
+                    jd_name = f"{safe_company_name}_{safe_position}"
                     save_and_extract_jd(jd_file, jd_name.strip())
                 except Exception as e:
                     st.error(f"Error processing {jd_file.name}: {str(e)}")  
