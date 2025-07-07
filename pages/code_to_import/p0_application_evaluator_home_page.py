@@ -65,7 +65,7 @@ def app_eval_home_page():
         
     st.divider()
     
-    st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
+    st.markdown('<div class="centered-content">', unsafe_allow_html=True)
     
     st.markdown("### What would you like to do?", unsafe_allow_html=True)  
     resume_button()
