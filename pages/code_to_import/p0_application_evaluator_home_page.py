@@ -56,10 +56,15 @@ def app_eval_home_page():
     st.divider()
     
     col1, col2, col3 = st.columns([1, 2, 1])
+    with col1:
+        pass
+  
     with col2: 
-        # st.markdown("### What would you like to do?", unsafe_allow_html=True) 
-        st.markdown("<div style='text-align:center;'><span>### What would you like to do?</span></div>", unsafe_allow_html=True)
+        st.markdown("### What would you like to do?", unsafe_allow_html=True) 
       
         resume_button()
         jd_button()
         crosscheck_button()  
+        
+    with col3:
+        pass
