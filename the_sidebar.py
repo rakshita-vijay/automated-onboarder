@@ -2,6 +2,7 @@ import streamlit as st
 
 def the_sb():
   with st.sidebar: 
+    st.markdown("## Main Menu")
     st.page_link("pages/p0_home_page.py", label="🖋️ Application Evaluator")
     st.page_link("pages/p1_resume.py", label="📝 Upload Resume")
     st.page_link("pages/p2_jd.py", label="👔 Upload JDs") 
