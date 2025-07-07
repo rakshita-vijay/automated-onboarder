@@ -26,7 +26,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def crosscheck_button():
-  st.page_link("pages/p3_eval.py", label="☯️ Evaluate Application") 
+  st.page_link("pages/p3_eval.py", label="🧮 Evaluate Application") 
  
 def list_txt_files_recursive_sorted(directory):
     """
