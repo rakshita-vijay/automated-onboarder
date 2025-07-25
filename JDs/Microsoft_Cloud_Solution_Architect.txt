@@ -1,0 +1,24 @@
+Job Title: Microsoft Cloud Solution Architect
+Job Summary: Design bespoke cloud solutions using Azure to meet client needs at Microsoft.
+
+Responsibilities:
+- Assess customer requirements and architect solutions.
+- Develop migration strategies to cloud environments.
+- Provide technical guidance during implementation.
+- Stay updated on cloud trends.
+- Document architectures and best practices.
+
+Qualifications:
+- Bachelor's degree in Computer Science.
+- 5+ years in cloud architecture.
+- Azure certification required.
+
+Skills:
+- Deep knowledge of cloud security.
+- Solution design expertise.
+- Client-facing communication.
+
+Tech Stack:
+- Platforms: Azure, AWS (for hybrid knowledge).
+- Tools: Azure Architecture Center, Terraform, ARM Templates.
+- Languages: PowerShell, JSON.

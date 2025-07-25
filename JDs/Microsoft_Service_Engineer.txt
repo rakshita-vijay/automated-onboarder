@@ -1,0 +1,24 @@
+Job Title: Microsoft Service Engineer
+Job Summary: Ensure reliable operations of Microsoft's cloud infrastructure, supporting services like Office 365.
+
+Responsibilities:
+- Monitor and maintain service availability.
+- Troubleshoot infrastructure issues in real-time.
+- Implement automation scripts for efficiency.
+- Coordinate with teams during incidents.
+- Optimize systems for scalability.
+
+Qualifications:
+- Bachelor's degree in Engineering or IT.
+- 2+ years in systems engineering.
+- Knowledge of networking and cloud platforms.
+
+Skills:
+- Proficiency in scripting languages like PowerShell.
+- Strong analytical mindset.
+- On-call availability for emergencies.
+
+Tech Stack:
+- Languages: PowerShell, Python, Bash.
+- Frameworks: Azure Monitor, Kubernetes.
+- Tools: Docker, Terraform, Splunk.

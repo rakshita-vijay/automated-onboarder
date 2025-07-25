@@ -1,0 +1,24 @@
+Job Title: Apple Senior Vice President of Hardware Engineering
+Job Summary: Oversee hardware design and engineering for Apple's products like iPhone and Mac.
+
+Responsibilities:
+- Lead hardware development cycles.
+- Innovate on device components.
+- Ensure product reliability and quality.
+- Coordinate with supply partners.
+- Drive R&D for new technologies.
+
+Qualifications:
+- Degree in Electrical Engineering.
+- 12+ years in hardware roles.
+- Background in consumer devices.
+
+Skills:
+- Hardware prototyping.
+- Project management.
+- Technical innovation.
+
+Tech Stack:
+- Tools: CAD software (e.g., SolidWorks), simulation tools.
+- Platforms: Custom Apple silicon design kits.
+- Languages: Verilog, Python for testing.

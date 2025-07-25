@@ -1,0 +1,24 @@
+Job Title: Apple Senior Vice President of Software Engineering
+Job Summary: Lead software development for Apple's ecosystem, including iOS and macOS.
+
+Responsibilities:
+- Direct software engineering teams.
+- Innovate on operating systems and apps.
+- Ensure software security and performance.
+- Collaborate on hardware-software integration.
+- Set engineering standards.
+
+Qualifications:
+- Advanced degree in Computer Science.
+- 12+ years in software leadership.
+- Experience in consumer tech.
+
+Skills:
+- Software architecture.
+- Team leadership.
+- Innovation in user experience.
+
+Tech Stack:
+- Languages: Swift, Objective-C, C++.
+- Frameworks: UIKit, SwiftUI.
+- Tools: Xcode, Git.

@@ -1,0 +1,24 @@
+Job Title: Google Technical Program Manager
+Job Summary: Manage technical programs at Google, ensuring seamless execution of AI and cloud initiatives.
+
+Responsibilities:
+- Coordinate project timelines and resources.
+- Identify and resolve bottlenecks.
+- Facilitate communication across teams.
+- Track metrics and report progress.
+- Adapt to changing priorities.
+
+Qualifications:
+- Bachelor's degree in a technical field.
+- 5+ years in program management.
+- Experience in tech environments.
+
+Skills:
+- Agile and Scrum proficiency.
+- Risk management.
+- Strong interpersonal skills.
+
+Tech Stack:
+- Tools: Jira, Asana, Google Workspace.
+- Frameworks: Agile/Scrum.
+- Languages: Python for scripting.

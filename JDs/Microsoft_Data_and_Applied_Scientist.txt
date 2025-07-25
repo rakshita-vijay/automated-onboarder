@@ -1,20 +1,24 @@
-Microsoft_Data_and_Applied_Scientist
+Job Title: Microsoft Data and Applied Scientist
+Job Summary: Leverage data to drive AI advancements at Microsoft, focusing on machine learning models that enhance products like Azure AI.
 
-**Job Summary:** Leverage data to drive AI advancements at Microsoft, focusing on machine learning models that enhance products like Azure AI.
-
-**Responsibilities:**
+Responsibilities:
 - Analyze large datasets to extract insights.
 - Develop and deploy machine learning algorithms.
 - Collaborate with engineers to integrate models into production.
 - Conduct experiments to improve model accuracy.
 - Present findings to stakeholders.
 
-**Qualifications:**
+Qualifications:
 - Master's or PhD in Data Science, Statistics, or equivalent.
 - 4+ years in data analysis or machine learning.
 - Experience with tools like Python, R, and TensorFlow.
 
-**Skills:**
+Skills:
 - Advanced statistical knowledge.
 - Data visualization expertise.
 - Ability to work in fast-paced environments.
+
+Tech Stack:
+- Languages: Python, R, SQL.
+- Frameworks: TensorFlow, PyTorch, Scikit-learn.
+- Tools: Azure ML, Power BI, Jupyter Notebooks.

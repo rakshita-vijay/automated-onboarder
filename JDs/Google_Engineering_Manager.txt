@@ -1,0 +1,24 @@
+Job Title: Google Engineering Manager
+Job Summary: Guide engineering teams at Google to build innovative, scalable solutions.
+
+Responsibilities:
+- Hire and develop engineering talent.
+- Oversee project delivery.
+- Promote best practices in coding.
+- Align team efforts with company goals.
+- Handle performance reviews.
+
+Qualifications:
+- Degree in Engineering.
+- 7+ years in management.
+- Background in software development.
+
+Skills:
+- Leadership in tech settings.
+- Conflict resolution.
+- Technical oversight.
+
+Tech Stack:
+- Languages: Python, Java.
+- Tools: Google Cloud Console, Performance Management Tools.
+- Frameworks: Leadership in Kubernetes environments.

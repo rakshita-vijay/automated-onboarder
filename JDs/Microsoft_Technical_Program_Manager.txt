@@ -1,0 +1,24 @@
+Job Title: Microsoft Technical Program Manager
+Job Summary: Lead technical projects at Microsoft, ensuring timely delivery of cloud and AI initiatives.
+
+Responsibilities:
+- Define project scopes and timelines.
+- Manage cross-team collaborations.
+- Track progress and mitigate risks.
+- Facilitate stakeholder meetings.
+- Ensure alignment with business goals.
+
+Qualifications:
+- Bachelor's degree in Project Management or technical field.
+- 5+ years in program management.
+- PMP certification preferred.
+
+Skills:
+- Leadership and organizational abilities.
+- Technical acumen in software development.
+- Agile methodology expertise.
+
+Tech Stack:
+- Tools: Microsoft Project, Jira, Confluence.
+- Frameworks: Agile/Scrum, Kanban.
+- Languages: Basic Python for automation.

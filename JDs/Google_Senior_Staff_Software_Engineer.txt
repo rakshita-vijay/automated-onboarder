@@ -1,0 +1,24 @@
+Job Title: Google Senior Staff Software Engineer
+Job Summary: Develop complex systems at Google, focusing on scalable software for products like Google Cloud.
+
+Responsibilities:
+- Architect high-performance software.
+- Lead code design and implementation.
+- Optimize algorithms for efficiency.
+- Mentor junior engineers.
+- Contribute to open-source projects.
+
+Qualifications:
+- Bachelor's or Master's in Computer Science.
+- 8+ years in software engineering.
+- Experience with large-scale systems.
+
+Skills:
+- Expertise in languages like Java and Go.
+- Problem-solving in distributed systems.
+- Innovation mindset.
+
+Tech Stack:
+- Languages: Java, Go, C++.
+- Frameworks: Spring, gRPC.
+- Tools: Git, Jenkins, Spanner.

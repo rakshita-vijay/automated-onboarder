@@ -1,0 +1,24 @@
+Job Title: Apple Chief Financial Officer
+Job Summary: Handle Apple's financial strategy, planning, and reporting.
+
+Responsibilities:
+- Develop budgets and financial forecasts.
+- Manage investments and capital allocation.
+- Lead financial reporting and audits.
+- Advise on mergers and acquisitions.
+- Ensure fiscal responsibility.
+
+Qualifications:
+- CPA or advanced finance degree.
+- 10+ years in financial leadership.
+- Experience in public companies.
+
+Skills:
+- Financial modeling.
+- Risk assessment.
+- Regulatory knowledge.
+
+Tech Stack:
+- Tools: Excel, Oracle Financials, Tableau.
+- Platforms: Custom financial reporting systems.
+- Languages: VBA, SQL.

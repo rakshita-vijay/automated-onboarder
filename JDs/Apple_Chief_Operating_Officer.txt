@@ -1,0 +1,24 @@
+Job Title: Apple Chief Operating Officer
+Job Summary: Manage Apple's day-to-day operations, including supply chain and manufacturing.
+
+Responsibilities:
+- Optimize operational efficiency.
+- Oversee global supply networks.
+- Coordinate with teams on production.
+- Implement cost-saving measures.
+- Ensure compliance with regulations.
+
+Qualifications:
+- Background in operations management.
+- 15+ years in senior roles.
+- Experience in consumer electronics.
+
+Skills:
+- Supply chain expertise.
+- Crisis management.
+- Analytical decision-making.
+
+Tech Stack:
+- Tools: ERP systems, Supply Chain Management software.
+- Platforms: Custom Apple logistics tools.
+- Languages: Python for automation.

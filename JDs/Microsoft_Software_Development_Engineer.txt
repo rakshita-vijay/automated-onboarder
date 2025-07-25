@@ -1,3 +1,4 @@
+Job Title: Microsoft Software Development Engineer
 Job Summary: Join Microsoft's innovative software team to design and develop cutting-edge applications that power global productivity tools.
 
 Responsibilities:
@@ -16,3 +17,8 @@ Skills:
 - Strong problem-solving abilities.
 - Familiarity with Azure cloud services.
 - Excellent communication skills.
+
+Tech Stack:
+- Languages: C#, Java, Python.
+- Frameworks: .NET, React.
+- Tools: Azure DevOps, Git, Visual Studio.
