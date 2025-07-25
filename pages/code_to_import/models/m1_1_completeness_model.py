@@ -16,7 +16,6 @@ def create_initial_dataset():
   """Create initial resume dataset from uploaded files if CSV doesn't exist."""
   if os.path.exists("resume_data.csv"):
     return
-
   data = []
   resume_dir = "resume_and_supporting_docs"
   if os.path.exists(resume_dir):
@@ -32,7 +31,6 @@ def create_initial_dataset():
           elif "project" in file.lower() and file.endswith(".txt"):
             with open(os.path.join(folder_path, file), 'r', encoding='utf-8') as f:
               projects_text += f.read() + "\n"
-
         if resume_text:
           data.append({
             "name": folder.replace("_", " "),
@@ -40,7 +38,6 @@ def create_initial_dataset():
             "projects": projects_text,
             "links": ""
           })
-
   df = pd.DataFrame(data)
   df.to_csv("resume_data.csv", index=False)
   print("Initial dataset created from uploaded files.")
@@ -118,7 +115,6 @@ class CompletenessModel:
     df = pd.read_csv(self.csv_in)
     driver = init_driver()
     tqdm.pandas()
-
     def process_row(row):
       txt = str(row.get("text", ""))[:2500]
       name = extract_name_ner(txt) or row.get("name", "")
@@ -133,7 +129,6 @@ class CompletenessModel:
       if projects:
         completeness += 0.2 * check_project_status_via_web(projects, driver)
       return pd.Series([name, links.strip(","), min(100, round(completeness * 100, 2))])
-
     df[["name", "links", "completeness"]] = df.progress_apply(process_row, axis=1)
     df.to_csv(self.csv_out, index=False)
     driver.quit()
