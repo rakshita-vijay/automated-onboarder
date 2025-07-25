@@ -20,6 +20,7 @@ class CrossCheckerModel:
     emb1 = self.get_embedding(resume_text)
     emb2 = self.get_embedding(jd_text)
     sim = torch.cosine_similarity(emb1, emb2, dim=0).item()
+    sim = (sim + 1) / 2  # Shift to 0-1 range
     return round(100 * max(0, min(1, sim)), 2)
 
   def get_scores(self, applicant_name, resume_text, jd_text):

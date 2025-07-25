@@ -6,6 +6,7 @@ from tqdm.auto import tqdm
 from transformers import pipeline
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options as FFOpts
 from selenium.common.exceptions import WebDriverException
 
 NER_MODEL = "Babelscape/wikineural-multilingual-ner"
@@ -19,13 +20,21 @@ def init_driver():
     if BROWSER == "chrome":
       driver = webdriver.Chrome(options=options)
     else:
-      from selenium.webdriver.firefox.options import Options as FFOpts
       ffopts = FFOpts()
       ffopts.add_argument("--headless")
       driver = webdriver.Firefox(options=ffopts)
     return driver
-  except WebDriverException:
-    raise RuntimeError("No [chrome/firefox] driver available")
+  except WebDriverException as e:
+    if BROWSER == "chrome":  # Fallback to Firefox if Chrome fails
+      try:
+        ffopts = FFOpts()
+        ffopts.add_argument("--headless")
+        driver = webdriver.Firefox(options=ffopts)
+        return driver
+      except:
+        raise RuntimeError("Both Chrome and Firefox drivers failed")
+    else:
+      raise RuntimeError("Driver initialization failed")
 
 def extract_name_ner(text):
   ner_pipe = pipeline("ner", model=NER_MODEL, grouped_entities=True)
@@ -48,12 +57,17 @@ def search_social_links(name, orgs=None, driver=None):
   }
   results = {}
   for site, q in queries.items():
-    driver.get(f"https://google.com/search?q={q.replace(' ','+')}")
-    time.sleep(1.5)
-    res = driver.find_elements("css selector", "a")
-    url = next((elem.get_attribute("href")
-                for elem in res if site in elem.get_attribute("href")), '')
-    results[site] = url
+    for attempt in range(2):  # Retry once
+      try:
+        driver.get(f"https://google.com/search?q={q.replace(' ','+')}")
+        time.sleep(1.5)
+        res = driver.find_elements("css selector", "a")
+        url = next((elem.get_attribute("href")
+                    for elem in res if site in elem.get_attribute("href")), '')
+        results[site] = url
+        break
+      except:
+        time.sleep(1)
   return results
 
 def check_project_status_via_web(project, driver):
@@ -74,6 +88,9 @@ class CompletenessModel:
     self.csv_out = csv_out
 
   def run(self):
+    if os.path.exists(self.csv_out):
+      print(f"{self.csv_out} exists; skipping recompute.")
+      return self.csv_out
     df = pd.read_csv(self.csv_in)
     driver = init_driver()
     tqdm.pandas()
@@ -94,7 +111,6 @@ class CompletenessModel:
       if projects:
         completeness += 0.2 * check_project_status_via_web(projects, driver)
       return pd.Series([links.strip(","), min(100, round(completeness * 100, 2))])
-
     df[["links", "completeness"]] = df.progress_apply(process_row, axis=1)
     df.to_csv(self.csv_out, index=False)
     driver.quit()

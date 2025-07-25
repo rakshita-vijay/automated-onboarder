@@ -7,12 +7,12 @@ from docx import Document
 from pypdf import PdfReader
 import tempfile
 import pandas as pd
-from streamlit_tree_select import tree_select  
+from streamlit_tree_select import tree_select
 
-from styles import css_dark   
+from styles import css_dark
 st.markdown(css_dark, unsafe_allow_html=True)
 st.markdown("""
-<style> 
+<style>
 @media (prefers-color-scheme: dark) {
   [data-testid="stTreeSelect"] span,
   [data-testid="stTreeSelect"] label,
@@ -22,8 +22,17 @@ st.markdown("""
   [data-testid="stTreeSelect"] input[type="checkbox"] {
     filter: invert(1); /* Optional: makes the checkbox white */
   }
-} 
+}
 </style>
 """, unsafe_allow_html=True)
 
-st.switch_page("pages/p0_home_page.py") 
+# Add: Model startup calls
+from pages.code_to_import.models.m1_1_completeness_model import CompletenessModel
+from pages.code_to_import.models.m1_2_truthiness_model import TruthinessModel
+
+# Run models if final CSV missing
+if not os.path.exists("resume_final.csv"):
+  CompletenessModel().run()
+  TruthinessModel().run()
+
+st.switch_page("pages/p0_home_page.py")

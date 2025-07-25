@@ -3,8 +3,9 @@ import pandas as pd
 from tqdm.auto import tqdm
 from transformers import pipeline
 import requests
+import re
 
-FACT_CHECK_MODEL = "microsoft/deberta-v3-base-mnli"  # HuggingFace for entailment/contradiction
+FACT_CHECK_MODEL = "microsoft/deberta-v3-base-mnli" # HuggingFace for entailment/contradiction
 
 def fetch_url_text(url, name):
   """Download url and check if the claimed person is really present."""
@@ -26,6 +27,19 @@ def extract_projects_features(text):
     if m:
       facets.append(m.group(2).strip())
   return facets
+
+def check_github_contributions(url, name, facets):
+  """If GitHub URL, check commits for name and if facets (features) appear in logs."""
+  if "github.com" not in url: return 0.5
+  try:
+    api_url = url.replace("github.com", "api.github.com/repos") + "/commits"
+    resp = requests.get(api_url, timeout=5)
+    commits = resp.json()
+    contrib = any(name.lower() in str(c.get("commit", {}).get("author", {})) for c in commits)
+    facet_match = any(any(f.lower() in str(c.get("commit", {}).get("message", "")) for f in facets) for c in commits)
+    return 1.0 if contrib and facet_match else 0.7 if contrib else 0.3
+  except:
+    return 0.3
 
 class TruthinessModel:
   def __init__(self, csv_in="resume_augmented.csv", csv_out="resume_final.csv", entail_model=FACT_CHECK_MODEL):
@@ -52,16 +66,23 @@ class TruthinessModel:
       res = self.fact_pipe(facet, [proj])
       score = float(res["scores"][0]) if "scores" in res else 0
       facet_scores.append(score)
+    # Deeper GitHub check if applicable
+    gh_score = 0
+    gh_links = [l for l in links.split(",") if "github.com" in l]
+    if gh_links:
+      gh_score = check_github_contributions(gh_links[0], name, facets)
     # Aggregate
-    if truth:
-      sc1 = max(truth)
-    else:
-      sc1 = 0.
+    if truth: sc1 = max(truth)
+    else: sc1 = 0.
     if facet_scores: sc2 = sum(facet_scores)/len(facet_scores)
     else: sc2 = 0.
-    return min(100, round((0.6*sc1+0.4*sc2)*100, 2))
+    sc3 = gh_score
+    return min(100, round((0.4*sc1 + 0.3*sc2 + 0.3*sc3)*100, 2))
 
   def run(self):
+    if os.path.exists(self.csv_out):
+      print(f"{self.csv_out} exists; skipping recompute.")
+      return
     self.df["truthiness"] = 0.
     for i, row in tqdm(self.df.iterrows(), total=len(self.df)):
       try:
