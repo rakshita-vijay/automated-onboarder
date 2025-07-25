@@ -20,35 +20,48 @@ self.csv_out = os.path.join(TRAIN_RESUMES_DIR, "resume_augmented.csv")
 
 BROWSER = "chrome"
 
+def download_kaggle_datasets():
+  import kaggle
+  resume_datasets = ["snehaanbhawal/resume-dataset", "amananandrai/resume-entities-for-ner", "dyneins/resume-dataset"]
+  jd_datasets = ["hiringtruck/job-description-dataset", "promptcloud/indeed-job-posting-dataset", "navoneel/industry-relevant-resume-phrases"]
+  all_data = {"resumes": [], "jds": []}
+  # Serially download resumes
+  for ds in resume_datasets:
+    ddir = os.path.join(TRAIN_RESUMES_DIR, ds.split("/")[-1])
+    kaggle.api.dataset_download_files(ds, path=ddir, unzip=True)
+    for root, _, files in os.walk(ddir):
+      for f in files:
+        if f.endswith(('.txt', '.csv', '.pdf', '.docx')):
+          fpath = os.path.join(root, f)
+          if f.endswith('.txt'):
+            with open(fpath, 'r', encoding='utf-8') as fin:
+              all_data["resumes"].append(fin.read())
+          # Add similar logic for csv/pdf/docx extraction as in your extract_ functions
+  # Serially download JDs
+  for ds in jd_datasets:
+    ddir = os.path.join(TRAIN_JDS_DIR, ds.split("/")[-1])
+    kaggle.api.dataset_download_files(ds, path=ddir, unzip=True)
+    for root, _, files in os.walk(ddir):
+      for f in files:
+        if f.endswith(('.txt', '.csv', '.pdf', '.docx')):
+          fpath = os.path.join(root, f)
+          if f.endswith('.txt'):
+            with open(fpath, 'r', encoding='utf-8') as fin:
+              all_data["jds"].append(fin.read())
+          # Add similar logic for other formats
+  return all_data
+
 def create_initial_dataset():
-  """Create initial resume dataset from uploaded files if CSV doesn't exist."""
   if os.path.exists("resume_data.csv"):
     return
-  data = []
-  resume_dir = "resume_and_supporting_docs"
-  if os.path.exists(resume_dir):
-    for folder in os.listdir(resume_dir):
-      folder_path = os.path.join(resume_dir, folder)
-      if os.path.isdir(folder_path):
-        resume_text = ""
-        projects_text = ""
-        for file in os.listdir(folder_path):
-          if file.endswith("_resume.txt"):
-            with open(os.path.join(folder_path, file), 'r', encoding='utf-8') as f:
-              resume_text = f.read()
-          elif "project" in file.lower() and file.endswith(".txt"):
-            with open(os.path.join(folder_path, file), 'r', encoding='utf-8') as f:
-              projects_text += f.read() + "\n"
-        if resume_text:
-          data.append({
-            "name": folder.replace("_", " "),
-            "text": resume_text,
-            "projects": projects_text,
-            "links": ""
-          })
-  df = pd.DataFrame(data)
-  df.to_csv(os.path.join(TRAIN_RESUMES_DIR, "resume_data.csv"), index=False)
-  print("Initial dataset created from uploaded files.")
+
+  data = download_kaggle_datasets()
+  resume_df = pd.DataFrame({"text": data["resumes"], "projects": "", "links": "", "name": ""})  # Dummy names; add NER if needed
+  resume_df.to_csv(os.path.join(TRAIN_RESUMES_DIR, "resume_data.csv"), index=False)
+  jd_df = pd.DataFrame({"text": data["jds"]})
+  jd_df.to_csv(os.path.join(TRAIN_JDS_DIR, "jd_data.csv"), index=False)
+  print("Initial datasets created from Kaggle.")
+
 
 def init_driver():
   options = Options()
