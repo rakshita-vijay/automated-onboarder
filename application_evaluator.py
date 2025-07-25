@@ -37,6 +37,9 @@ try:
   TRAIN_JDS_DIR = "training_data/training_jds"
   os.makedirs(TRAIN_JDS_DIR, exist_ok=True)
 
+  from pages.code_to_import.models.m1_1_completeness_model import create_initial_dataset
+  create_initial_dataset()
+
   if not os.path.exists("resume_final.csv") or st.session_state.app_rebooted:
     with st.spinner("Initializing AI models..."):
       CompletenessModel().run()

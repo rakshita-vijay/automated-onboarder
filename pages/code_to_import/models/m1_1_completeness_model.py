@@ -47,7 +47,7 @@ def create_initial_dataset():
             "links": ""
           })
   df = pd.DataFrame(data)
-  df.to_csv("resume_data.csv", index=False)
+  df.to_csv(os.path.join(TRAIN_RESUMES_DIR, "resume_data.csv"), index=False)
   print("Initial dataset created from uploaded files.")
 
 def init_driver():

@@ -13,6 +13,7 @@ class CrossCheckerModel:
   def __init__(self, csv_path=None, emb_model=SENT_EMB_MODEL):
     if csv_path is None:
       csv_path = os.path.join(TRAIN_RESUMES_DIR, "resume_final.csv")
+
     try:
       self.df = pd.read_csv(csv_path)
     except Exception as e:
