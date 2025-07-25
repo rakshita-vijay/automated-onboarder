@@ -41,8 +41,8 @@ def resume_button():
 
 # --- FILE EXTRACTION HELPERS (unchanged) ---
 def extract_docx(file_path):
-doc = Document(file_path)
-return "\n".join([para.text for para in doc.paragraphs])
+  doc = Document(file_path)
+  return "\n".join([para.text for para in doc.paragraphs])
 
 def extract_pdf(file_path):
   with open(file_path, "rb") as f:
