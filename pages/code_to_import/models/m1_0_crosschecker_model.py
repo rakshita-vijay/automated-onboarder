@@ -9,7 +9,8 @@ class CrossCheckerModel:
     try:
       self.df = pd.read_csv(csv_path)
     except Exception as e:
-      raise ValueError(f"CSV load failed: {e}")
+      print(f"Warning: CSV load failed: {e}. Creating empty dataframe.")
+      self.df = pd.DataFrame(columns=['name', 'completeness', 'truthiness'])
     self.tokenizer = AutoTokenizer.from_pretrained(emb_model)
     self.model = AutoModel.from_pretrained(emb_model)
 
@@ -23,16 +24,14 @@ class CrossCheckerModel:
     emb1 = self.get_embedding(resume_text)
     emb2 = self.get_embedding(jd_text)
     sim = torch.cosine_similarity(emb1, emb2, dim=0).item()
-    sim = (sim + 1) / 2 # Shift to 0-1 range
+    sim = (sim + 1) / 2
     return round(100 * max(0, min(1, sim)), 2)
 
   def get_scores(self, applicant_name, resume_text, jd_text):
-    row = self.df[self.df['name'].str.lower() == applicant_name.lower()]
-    completeness = float(row['completeness'].iloc[0]) if not row.empty else None
-    truthiness = float(row['truthiness'].iloc[0]) if not row.empty else None
+    # Clean applicant name for matching
+    clean_name = applicant_name.replace("_", " ").lower()
+    row = self.df[self.df['name'].str.lower() == clean_name]
+    completeness = float(row['completeness'].iloc[0]) if not row.empty else 50.0
+    truthiness = float(row['truthiness'].iloc[0]) if not row.empty else 50.0
     relevance = self.compute_relevance(resume_text, jd_text)
     return {'completeness': completeness, 'truthiness': truthiness, 'relevance': relevance}
-
-# Usage in your app:
-# crosschecker = CrossCheckerModel()
-# scores = crosschecker.get_scores(applicant_name, resume_text, jd_text)

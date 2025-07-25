@@ -5,7 +5,13 @@ from transformers import pipeline
 import requests
 import re
 
-FACT_CHECK_MODEL = "microsoft/deberta-v3-base-mnli" # HuggingFace for entailment/contradiction
+FACT_CHECK_MODEL = "microsoft/deberta-v3-base-mnli"
+
+def extract_name_ner(text):
+  """Extract person name using simple heuristic."""
+  import re
+  words = re.findall(r'\b[A-Z][a-z]+\b', text[:200])
+  return " ".join(words[:2]) if len(words) >= 2 else words[0] if words else ""
 
 def fetch_url_text(url, name):
   """Download url and check if the claimed person is really present."""
@@ -19,7 +25,6 @@ def fetch_url_text(url, name):
   return False
 
 def extract_projects_features(text):
-  # Naive split: look for 'project: ... features: ...'
   segments = re.split(r"project[s]*[:\-]", text, flags=re.IGNORECASE)
   facets = []
   for seg in segments[1:]:
@@ -51,7 +56,6 @@ class TruthinessModel:
   def row_score(self, row):
     name = row.get("name") or extract_name_ner(row.get("text",""))
     links = str(row.get("links",""))
-    # Check links
     truth = []
     for url in links.split(","):
       if "http" in url and fetch_url_text(url, name):
@@ -59,19 +63,16 @@ class TruthinessModel:
       else:
         truth.append(0.)
     proj = row.get("projects", "")
-    # If project features are listed, check them using entailment
     facets = extract_projects_features(str(proj))
     facet_scores = []
     for facet in facets:
       res = self.fact_pipe(facet, [proj])
       score = float(res["scores"][0]) if "scores" in res else 0
       facet_scores.append(score)
-    # Deeper GitHub check if applicable
     gh_score = 0
     gh_links = [l for l in links.split(",") if "github.com" in l]
     if gh_links:
       gh_score = check_github_contributions(gh_links[0], name, facets)
-    # Aggregate
     if truth: sc1 = max(truth)
     else: sc1 = 0.
     if facet_scores: sc2 = sum(facet_scores)/len(facet_scores)

@@ -23,17 +23,20 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Add: Model startup calls
-from pages.code_to_import.models.m1_1_completeness_model import CompletenessModel
-from pages.code_to_import.models.m1_2_truthiness_model import TruthinessModel
+# Model startup calls
+try:
+  from pages.code_to_import.models.m1_1_completeness_model import CompletenessModel
+  from pages.code_to_import.models.m1_2_truthiness_model import TruthinessModel
 
-# Run models if final CSV missing or app rebooted (use session state)
-if 'app_rebooted' not in st.session_state:
-  st.session_state.app_rebooted = True
+  if 'app_rebooted' not in st.session_state:
+    st.session_state.app_rebooted = True
 
-if not os.path.exists("resume_final.csv") or st.session_state.app_rebooted:
-  CompletenessModel().run()
-  TruthinessModel().run()
-  st.session_state.app_rebooted = False  # Reset flag
+  if not os.path.exists("resume_final.csv") or st.session_state.app_rebooted:
+    with st.spinner("Initializing AI models..."):
+      CompletenessModel().run()
+      TruthinessModel().run()
+    st.session_state.app_rebooted = False
+except ImportError as e:
+  st.warning(f"Model import failed: {e}. Continuing without AI features.")
 
 st.switch_page("pages/p0_home_page.py")
