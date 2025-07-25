@@ -31,6 +31,12 @@ try:
   if 'app_rebooted' not in st.session_state:
     st.session_state.app_rebooted = True
 
+  TRAIN_RESUMES_DIR = "training_data/training_resumes"
+  os.makedirs(TRAIN_RESUMES_DIR, exist_ok=True)
+
+  TRAIN_JDS_DIR = "training_data/training_jds"
+  os.makedirs(TRAIN_JDS_DIR, exist_ok=True)
+
   if not os.path.exists("resume_final.csv") or st.session_state.app_rebooted:
     with st.spinner("Initializing AI models..."):
       CompletenessModel().run()

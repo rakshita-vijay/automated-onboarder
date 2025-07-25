@@ -7,6 +7,13 @@ import re
 
 FACT_CHECK_MODEL = "microsoft/deberta-v3-base-mnli"
 
+TRAIN_RESUMES_DIR = "training_data/training_resumes"
+os.makedirs(TRAIN_RESUMES_DIR, exist_ok=True)
+
+# Change all csv_in/csv_out to use TRAIN_RESUMES_DIR, e.g.:
+self.csv_in = os.path.join(TRAIN_RESUMES_DIR, "resume_augmented.csv")
+self.csv_out = os.path.join(TRAIN_RESUMES_DIR, "resume_final.csv")
+
 def extract_name_ner(text):
   """Extract person name using simple heuristic."""
   import re

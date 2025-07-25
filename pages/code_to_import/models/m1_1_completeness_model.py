@@ -10,6 +10,14 @@ from selenium.webdriver.firefox.options import Options as FFOpts
 from selenium.common.exceptions import WebDriverException
 
 NER_MODEL = "Babelscape/wikineural-multilingual-ner"
+
+TRAIN_RESUMES_DIR = "training_data/training_resumes"
+os.makedirs(TRAIN_RESUMES_DIR, exist_ok=True)
+
+# Change all csv_in/csv_out to use TRAIN_RESUMES_DIR, e.g.:
+self.csv_in = os.path.join(TRAIN_RESUMES_DIR, "resume_data.csv")
+self.csv_out = os.path.join(TRAIN_RESUMES_DIR, "resume_augmented.csv")
+
 BROWSER = "chrome"
 
 def create_initial_dataset():

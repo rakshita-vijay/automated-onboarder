@@ -1,16 +1,24 @@
+import os
 import pandas as pd
 import torch
 from transformers import AutoTokenizer, AutoModel
 
 SENT_EMB_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
+TRAIN_DATA_DIR = "training_data"
+TRAIN_RESUMES_DIR = os.path.join(TRAIN_DATA_DIR, "training_resumes")
+os.makedirs(TRAIN_RESUMES_DIR, exist_ok=True)
+
 class CrossCheckerModel:
-  def __init__(self, csv_path="resume_final.csv", emb_model=SENT_EMB_MODEL):
+  def __init__(self, csv_path=None, emb_model=SENT_EMB_MODEL):
+    if csv_path is None:
+      csv_path = os.path.join(TRAIN_RESUMES_DIR, "resume_final.csv")
     try:
       self.df = pd.read_csv(csv_path)
     except Exception as e:
       print(f"Warning: CSV load failed: {e}. Creating empty dataframe.")
       self.df = pd.DataFrame(columns=['name', 'completeness', 'truthiness'])
+
     self.tokenizer = AutoTokenizer.from_pretrained(emb_model)
     self.model = AutoModel.from_pretrained(emb_model)
 
