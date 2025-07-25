@@ -6,7 +6,10 @@ SENT_EMB_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 class CrossCheckerModel:
   def __init__(self, csv_path="resume_final.csv", emb_model=SENT_EMB_MODEL):
-    self.df = pd.read_csv(csv_path)
+    try:
+      self.df = pd.read_csv(csv_path)
+    except Exception as e:
+      raise ValueError(f"CSV load failed: {e}")
     self.tokenizer = AutoTokenizer.from_pretrained(emb_model)
     self.model = AutoModel.from_pretrained(emb_model)
 
@@ -20,7 +23,7 @@ class CrossCheckerModel:
     emb1 = self.get_embedding(resume_text)
     emb2 = self.get_embedding(jd_text)
     sim = torch.cosine_similarity(emb1, emb2, dim=0).item()
-    sim = (sim + 1) / 2  # Shift to 0-1 range
+    sim = (sim + 1) / 2 # Shift to 0-1 range
     return round(100 * max(0, min(1, sim)), 2)
 
   def get_scores(self, applicant_name, resume_text, jd_text):

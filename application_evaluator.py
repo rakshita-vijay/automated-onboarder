@@ -1,8 +1,5 @@
 import streamlit as st
-import os
-import shutil
-import base64
-import git
+import os, shutil, base64, git
 from docx import Document
 from pypdf import PdfReader
 import tempfile
@@ -30,9 +27,13 @@ st.markdown("""
 from pages.code_to_import.models.m1_1_completeness_model import CompletenessModel
 from pages.code_to_import.models.m1_2_truthiness_model import TruthinessModel
 
-# Run models if final CSV missing
-if not os.path.exists("resume_final.csv"):
+# Run models if final CSV missing or app rebooted (use session state)
+if 'app_rebooted' not in st.session_state:
+  st.session_state.app_rebooted = True
+
+if not os.path.exists("resume_final.csv") or st.session_state.app_rebooted:
   CompletenessModel().run()
   TruthinessModel().run()
+  st.session_state.app_rebooted = False  # Reset flag
 
 st.switch_page("pages/p0_home_page.py")

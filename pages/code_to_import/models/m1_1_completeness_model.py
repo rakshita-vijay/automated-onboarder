@@ -25,16 +25,12 @@ def init_driver():
       driver = webdriver.Firefox(options=ffopts)
     return driver
   except WebDriverException as e:
-    if BROWSER == "chrome":  # Fallback to Firefox if Chrome fails
-      try:
-        ffopts = FFOpts()
-        ffopts.add_argument("--headless")
-        driver = webdriver.Firefox(options=ffopts)
-        return driver
-      except:
-        raise RuntimeError("Both Chrome and Firefox drivers failed")
-    else:
-      raise RuntimeError("Driver initialization failed")
+    if BROWSER == "chrome":
+      ffopts = FFOpts()
+      ffopts.add_argument("--headless")
+      driver = webdriver.Firefox(options=ffopts)
+      return driver
+    raise RuntimeError("Driver initialization failed")
 
 def extract_name_ner(text):
   ner_pipe = pipeline("ner", model=NER_MODEL, grouped_entities=True)
@@ -57,7 +53,7 @@ def search_social_links(name, orgs=None, driver=None):
   }
   results = {}
   for site, q in queries.items():
-    for attempt in range(2):  # Retry once
+    for attempt in range(3):  # Retry 3 times
       try:
         driver.get(f"https://google.com/search?q={q.replace(' ','+')}")
         time.sleep(1.5)
@@ -76,7 +72,6 @@ def check_project_status_via_web(project, driver):
   query = f"{project} deployed OR completed OR github OR site OR final"
   driver.get(f"https://google.com/search?q={query.replace(' ','+')}")
   time.sleep(1.0)
-  # Look for deployment pages or success confirmations
   page = driver.page_source.lower()
   return 1.0 if ("deployed" in page or "final" in page or "completed" in page) else 0.5
 
@@ -94,18 +89,15 @@ class CompletenessModel:
     df = pd.read_csv(self.csv_in)
     driver = init_driver()
     tqdm.pandas()
-    # For each resume: auto-find missing social links, check project status
     def process_row(row):
       txt = str(row.get("text", ""))[:2500]
       name = extract_name_ner(txt)
       links = str(row.get("links", ""))
-      # Autofind links if missing
       if not ("github" in links or "linkedin" in links):
         found = search_social_links(name, driver=driver)
         for s in ["github", "linkedin", "facebook"]:
           if found[s] and found[s] not in links:
             links += "," + found[s]
-      # Completeness: how many of REQUIRED_SECTIONS and if project(s) are "really" completed
       completeness = sum(f in txt.lower() for f in self.REQUIRED_SECTIONS) / len(self.REQUIRED_SECTIONS)
       projects = row.get("projects", "")
       if projects:
