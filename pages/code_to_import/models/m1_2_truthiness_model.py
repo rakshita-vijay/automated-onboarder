@@ -14,6 +14,19 @@ os.makedirs(TRAIN_RESUMES_DIR, exist_ok=True)
 self.csv_in = os.path.join(TRAIN_RESUMES_DIR, "resume_augmented.csv")
 self.csv_out = os.path.join(TRAIN_RESUMES_DIR, "resume_final.csv")
 
+def setup_git_repo():
+  try:
+    GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
+    repo = git.Repo(".")
+    username = "rakshita-vijay"
+    repo_url = f"https://{username}:{GITHUB_TOKEN}@github.com/{username}/automated-onboarder.git"
+    repo.remote().set_url(repo_url)
+    st.success("Using existing Git repository!")
+    return repo
+  except git.exc.InvalidGitRepositoryError:
+    st.error("Not in a Git repository. Make sure you're running from your repo directory.")
+    return None
+
 def extract_name_ner(text):
   """Extract person name using simple heuristic."""
   import re
@@ -91,13 +104,25 @@ class TruthinessModel:
     if os.path.exists(self.csv_out):
       print(f"{self.csv_out} exists; skipping recompute.")
       return
+
     self.df["truthiness"] = 0.
+
     for i, row in tqdm(self.df.iterrows(), total=len(self.df)):
       try:
         self.df.at[i, "truthiness"] = self.row_score(row)
       except Exception:
         self.df.at[i, "truthiness"] = 0
+
     self.df.to_csv(self.csv_out, index=False)
+
+    repo = setup_git_repo()
+    if repo:
+      repo.git.add(self.csv_out)  # Add only the final CSV
+      repo.index.commit("Update resume_final.csv with truthiness scores")
+      origin = repo.remote(name="origin")
+      origin.push()
+      print("Pushed resume_final.csv to GitHub")
+
     print("Truthiness scores added to", self.csv_out)
 
 if __name__ == "__main__":
