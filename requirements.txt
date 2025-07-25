@@ -1,7 +1,15 @@
-streamlit>=1.25.0  
+streamlit>=1.25.0
 pypdf
 python-docx
 pandas
 streamlit-tree-select
 streamlit-tree-selector
-crewai 
+crewai
+
+transformers
+torch
+datasets
+scikit-learn
+joblib
+tqdm
+kaggle
