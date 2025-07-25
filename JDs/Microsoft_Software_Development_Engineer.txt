@@ -1,0 +1,18 @@
+Job Summary: Join Microsoft's innovative software team to design and develop cutting-edge applications that power global productivity tools.
+
+Responsibilities:
+- Collaborate with cross-functional teams to build scalable software solutions.
+- Write clean, efficient code in languages like C# and Java.
+- Debug and optimize applications for performance.
+- Participate in code reviews and agile development processes.
+- Integrate new features based on user feedback.
+
+Qualifications:
+- Bachelor's degree in Computer Science or related field.
+- 3+ years of experience in software development.
+- Proficiency in object-oriented programming.
+
+Skills:
+- Strong problem-solving abilities.
+- Familiarity with Azure cloud services.
+- Excellent communication skills.

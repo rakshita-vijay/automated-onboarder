@@ -4,14 +4,14 @@ import git
 from docx import Document
 from pypdf import PdfReader
 from streamlit_tree_select import tree_select
-from styles import css_dark 
+from styles import css_dark
 
 from pages.code_to_import.p1_upload_resume import resume_button
 from pages.code_to_import.p2_upload_jd import jd_button
 
 st.markdown(css_dark, unsafe_allow_html=True)
 st.markdown("""
-<style> 
+<style>
 @media (prefers-color-scheme: dark) {
   [data-testid="stTreeSelect"] span,
   [data-testid="stTreeSelect"] label,
@@ -21,16 +21,16 @@ st.markdown("""
   [data-testid="stTreeSelect"] input[type="checkbox"] {
     filter: invert(1); /* Optional: makes the checkbox white */
   }
-} 
+}
 </style>
 """, unsafe_allow_html=True)
 
 def crosscheck_button():
-  st.page_link("pages/p3_eval.py", label="🧮 Evaluate Application") 
- 
+  st.page_link("pages/p3_eval.py", label="🧮 Evaluate Application")
+
 def list_txt_files_recursive_sorted(directory):
     """
-    Recursively find all .txt files in all subfolders of 'directory', 
+    Recursively find all .txt files in all subfolders of 'directory',
     and return a sorted list of their full paths (sorted alphabetically by filename).
     """
     txt_files = []
@@ -40,16 +40,16 @@ def list_txt_files_recursive_sorted(directory):
                 if directory != "JDs":
                     rel_dir = os.path.relpath(root, directory)
                     rel_file = os.path.join(rel_dir, file)
-                    txt_files.append(rel_file) 
+                    txt_files.append(rel_file)
                 else:
-                    txt_files.append(file) 
-              
+                    txt_files.append(file)
+
     txt_files.sort(key=lambda x: os.path.basename(x).lower())
     return txt_files
-  
+
 def get_applicant_name_from_filename(filename):
     """Extract applicant name from resume filename (e.g., 'anupam.txt' -> 'anupam')."""
-    return os.path.splitext(filename)[0]  
+    return os.path.splitext(filename)[0]
 
 def get_jd_name_from_filename(filename):
     """Extract JD name from JD filename (e.g., 'jd1.txt' -> 'jd1')."""
@@ -64,20 +64,20 @@ def display_jd_content(jd_dir, jd_file):
     return "JD file not found."
 
 def resume_x_jd():
-    st.title("🧮 Evaluate Applications") 
-    
+    st.title("🧮 Evaluate Applications")
+
     st.divider()
     resume_button()
-    jd_button() 
+    jd_button()
     st.divider()
 
-    scraped_info_dir = "scraped_info"
-    jd_dir = "JDs" 
+    resume_and_supporting_docs_dir = "resume_and_supporting_docs"
+    jd_dir = "JDs"
 
     # New code: show only file names, but keep mapping to full path
-    resume_files_full = list_txt_files_recursive_sorted(scraped_info_dir)
+    resume_files_full = list_txt_files_recursive_sorted(resume_and_supporting_docs_dir)
     jd_files_full = list_txt_files_recursive_sorted(jd_dir)
-    
+
     # Build mapping: filename -> full relative path
     resume_file_map = {os.path.basename(f): f for f in resume_files_full}
     jd_file_map = {os.path.basename(f): f for f in jd_files_full}
@@ -99,12 +99,12 @@ def resume_x_jd():
             placeholder="Choose a JD...",
             key="jd_select"
         )
-    
+
     # Use the mapping to get the full path when needed
     if selected_resume_name and selected_jd_name:
         selected_resume = resume_file_map[selected_resume_name]
         selected_jd = jd_file_map[selected_jd_name]
-        
+
         applicant_name = get_applicant_name_from_filename(selected_resume)
         jd_name = get_jd_name_from_filename(selected_jd)
         jd_content = display_jd_content(jd_dir, selected_jd)
@@ -118,11 +118,11 @@ def resume_x_jd():
         with box_col3:
             st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #222; color: #fff; text-align: center; font-weight: bold;'>{jd_name}</div>", unsafe_allow_html=True)
     else:
-        st.info("Please select both a resume and a JD file to compare.")  
-        
+        st.info("Please select both a resume and a JD file to compare.")
+
 previous_last_part = '''
-    # List .txt files in both directories 
-    resume_files = list_txt_files_recursive_sorted(scraped_info_dir)
+    # List .txt files in both directories
+    resume_files = list_txt_files_recursive_sorted(resume_and_supporting_docs_dir)
     jd_files = list_txt_files_recursive_sorted(jd_dir)
 
     # Two columns for dropdowns
@@ -142,7 +142,7 @@ previous_last_part = '''
             index=None,
             placeholder="Choose a JD...",
             key="jd_select"
-        ) 
+        )
 
     # When both are selected, show the comparison box
     if selected_resume and selected_jd:
@@ -159,5 +159,5 @@ previous_last_part = '''
         with box_col3:
             st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #222; color: #fff; text-align: center; font-weight: bold;'>{jd_name}</div>", unsafe_allow_html=True)
     else:
-        st.info("Please select both a resume and a JD file to compare.") 
+        st.info("Please select both a resume and a JD file to compare.")
 '''

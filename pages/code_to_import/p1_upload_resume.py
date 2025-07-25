@@ -8,7 +8,7 @@ from styles import css_dark  # or css_light
 
 st.markdown(css_dark, unsafe_allow_html=True)
 st.markdown("""
-<style> 
+<style>
 @media (prefers-color-scheme: dark) {
     [data-testid="stTreeSelect"] span,
     [data-testid="stTreeSelect"] label,
@@ -18,7 +18,7 @@ st.markdown("""
     [data-testid="stTreeSelect"] input[type="checkbox"] {
         filter: invert(1); /* Optional: makes the checkbox white */
     }
-} 
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -36,7 +36,7 @@ def setup_git_repo():
         st.error("Not in a Git repository. Make sure you're running from your repo directory.")
         return None
 
-def resume_button(): 
+def resume_button():
   st.page_link("pages/p1_resume.py", label="📄 Upload Resume")
 
 # --- FILE EXTRACTION HELPERS (unchanged) ---
@@ -52,8 +52,8 @@ def extract_pdf(file_path):
 def extract_txt(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
-      
-# --- SUPPORTING DOC NUMBERING (CHANGED) --- 
+
+# --- SUPPORTING DOC NUMBERING (CHANGED) ---
 def get_next_supporting_number(applicant_dir, name_prefix):
     """Return the next supporting doc number for this applicant."""
     prefix = f"{name_prefix}_supporting_"
@@ -95,7 +95,7 @@ def save_and_extract_file(uploaded_file, applicant_dir, save_name):
         f.write(text)
     return text_path
 
-def build_tree(root="scraped_info"):
+def build_tree(root="resume_and_supporting_docs"):
     nodes = []
     if os.path.exists(root):
         for folder in sorted(os.listdir(root)):
@@ -186,7 +186,7 @@ def upload_resume():
             st.warning("Please enter at least a first name.")
         else:
             name_prefix = "_".join(names)
-            applicant_dir = os.path.join("scraped_info", name_prefix)
+            applicant_dir = os.path.join("resume_and_supporting_docs", name_prefix)
             # --- NEW: Check if resume already exists ---
             if resume_exists(applicant_dir, name_prefix):
                 st.info("A resume already exists for this applicant. All uploaded files will be saved as supporting documents.")
@@ -199,7 +199,7 @@ def upload_resume():
 
     '''
     if uploaded_files and applicant_name:
-        names = applicant_name.strip().split() 
+        names = applicant_name.strip().split()
         if len(names) < 1:
             st.warning("Please enter at least a first name.")
         else:
@@ -209,19 +209,19 @@ def upload_resume():
     else:
         main_resume_idx, supporting_docs = None, []
     '''
-    
+
     if st.button("Process Files"):
         if not uploaded_files:
             st.warning("There are no files to process :(")
         elif not applicant_name:
             st.warning("Applicant's name has not been entered :(")
         else:
-            names = applicant_name.strip().split() 
+            names = applicant_name.strip().split()
             if len(names) < 1:
                 st.warning("Please enter at least a first name.")
             else:
                 name_prefix = "_".join(names)
-                applicant_dir = os.path.join("scraped_info", name_prefix)
+                applicant_dir = os.path.join("resume_and_supporting_docs", name_prefix)
                 os.makedirs(applicant_dir, exist_ok=True)
                 # Count existing supporting docs for numbering
                 next_supp_num = get_next_supporting_number(applicant_dir, name_prefix)
@@ -241,7 +241,7 @@ def upload_resume():
                         except Exception as e:
                             st.error(f"Error processing {uploaded_file.name}: {str(e)}")
                 st.success(f"Successfully processed {len(uploaded_files)} files for {applicant_name}!")
-              
+
     # GitHub integration (unchanged)
     st.divider()
     st.subheader("GitHub Integration")
@@ -252,7 +252,7 @@ def upload_resume():
                     st.session_state.repo = setup_git_repo()
                 if st.session_state.repo:
                     repo = st.session_state.repo
-                    repo.git.add("scraped_info/")
+                    repo.git.add("resume_and_supporting_docs/")
                     repo.index.commit("Add new applicant files")
                     origin = repo.remote(name="origin")
                     origin.push()
@@ -287,7 +287,7 @@ from styles import css_dark  # or css_light
 
 st.markdown(css_dark, unsafe_allow_html=True)
 st.markdown("""
-<style> 
+<style>
 @media (prefers-color-scheme: dark) {
   [data-testid="stTreeSelect"] span,
   [data-testid="stTreeSelect"] label,
@@ -297,7 +297,7 @@ st.markdown("""
   [data-testid="stTreeSelect"] input[type="checkbox"] {
     filter: invert(1); /* Optional: makes the checkbox white */
   }
-} 
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -328,7 +328,7 @@ def extract_txt(file_path):
         return f.read()
 
 def save_and_extract_resume(uploaded_file, applicant_name):
-    base_dir = "scraped_info"
+    base_dir = "resume_and_supporting_docs"
     applicant_dir = os.path.join(base_dir, applicant_name)
     os.makedirs(applicant_dir, exist_ok=True)
     original_path = os.path.join(applicant_dir, uploaded_file.name)
@@ -347,7 +347,7 @@ def save_and_extract_resume(uploaded_file, applicant_name):
         f.write(text)
     return text_path
 
-def build_tree(root="scraped_info"):
+def build_tree(root="resume_and_supporting_docs"):
     nodes = []
     if os.path.exists(root):
         for folder in sorted(os.listdir(root)):
@@ -361,9 +361,9 @@ def build_tree(root="scraped_info"):
                 nodes.append({"label": folder, "value": folder, "children": children})
     return nodes
 
-def resume_button(): 
+def resume_button():
   st.page_link("pages/p1_resume.py", label="📄 Upload Resume")
-  
+
 def upload_resume():
     # Session state
     if 'repo' not in st.session_state:
@@ -407,7 +407,7 @@ def upload_resume():
                     st.session_state.repo = setup_git_repo()
                 if st.session_state.repo:
                     repo = st.session_state.repo
-                    repo.git.add("scraped_info/")
+                    repo.git.add("resume_and_supporting_docs/")
                     repo.index.commit("Add new applicant files")
                     origin = repo.remote(name="origin")
                     origin.push()
@@ -422,5 +422,5 @@ def upload_resume():
     if nodes:
         tree_select(nodes)
     else:
-        st.info("No applicant files uploaded yet.") 
+        st.info("No applicant files uploaded yet.")
 '''
