@@ -5,7 +5,6 @@ pandas
 streamlit-tree-select
 streamlit-tree-selector
 crewai
-
 transformers
 torch
 datasets
@@ -13,3 +12,6 @@ scikit-learn
 joblib
 tqdm
 kaggle
+selenium
+webdriver-manager
+requests

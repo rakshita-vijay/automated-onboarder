@@ -17,8 +17,18 @@ class CrossCheckerModel:
 
   def __init__(self):
     self.base_dir = "training_data"
-    self.resume_file = "resume_final.csv"
-    self.jd_file = "jd_final.csv"
+    self.resume_dir = os.path.join(self.base_dir, "training_resumes")
+    self.resume_outfiles = [
+      os.path.join(self.resume_dir, f"resume_final_{i+1}.csv") for i in range(3)
+    ]
+    os.makedirs(self.resume_dir, exist_ok=True)
+
+    self.jd_dir = os.path.join(self.base_dir, "training_jds")
+    self.jd_outfiles = [
+      os.path.join(self.jd_dir, f"jd_final_{i+1}.csv") for i in range(3)
+    ]
+    os.makedirs(self.jd_dir, exist_ok=True)
+
     self.model_dir = "models/saved"
     self.model_path = os.path.join(self.model_dir, "crosschecker_bert.pt")
     self.tokenizer_path = os.path.join(self.model_dir, "crosschecker_tokenizer")
@@ -67,10 +77,19 @@ class CrossCheckerModel:
     Resume data must already have 'completeness' and 'truthiness' columns added.
     JD data can be downloaded anew each run.
     """
-    resume_path = os.path.join(self.base_dir, self.resume_file)
-    jd_path = os.path.join(self.base_dir, self.jd_file)
-    resume_df = pd.read_csv(resume_path)
-    jd_df = pd.read_csv(jd_path)
+
+    self.resume_dir = os.path.join(self.base_dir, "training_resumes")
+    self.jd_dir = os.path.join(self.base_dir, "training_jds")
+    self.resume_files = sorted([
+      os.path.join(self.resume_dir, f) for f in os.listdir(self.resume_dir) if f.startswith("resume_final_")
+    ])
+    self.jd_files = sorted([
+      os.path.join(self.jd_dir, f) for f in os.listdir(self.jd_dir) if f.startswith("jd_final_")
+    ])
+
+    resume_dfs = [pd.read_csv(f) for f in self.resume_files]
+    jd_dfs = [pd.read_csv(f) for f in self.jd_files]
+
     resume_df = resume_df.dropna(subset=["text"])  # ensure all text present
     jd_df = jd_df.dropna(subset=["text"])
     return resume_df, jd_df
@@ -81,27 +100,40 @@ class CrossCheckerModel:
     Positive: the resume vs. a JD that's likely to match its own area (rough simulation).
     For now, all pairings are treated as potential positive with a similarity measure, but label randomly for demo.
     """
+    # Aggregate random pairs
     pairs = []
-    for ix, r_row in resume_df.iterrows():
-      resume_text = str(r_row["text"])
-      for _ in range(n_per_resume):
-        # Random JD for the pair (simulate 'irrelevant')
-        sample_jd_text = jd_df.sample(1)["text"].values[0]
-        pairs.append({
-          "resume": resume_text,
-          "jd": sample_jd_text,
-          "label": 0  # negative label
-        })
-      # Also add at least one positive 'matching' pair for each resume (simulate own JD as most relevant)
-      jd_text = jd_df.sample(1)["text"].values[0]
-      pairs.append({
-        "resume": resume_text,
-        "jd": jd_text,
-        "label": 1  # positive label
-      })
-      if len(pairs) > 3200:  # keep final dataset manageable
-        break
-    return pd.DataFrame(pairs)
+    for resume_file in self.resume_files:
+      resume_df = pd.read_csv(resume_file).dropna(subset=["text"])
+      for jd_file in self.jd_files:
+        jd_df = pd.read_csv(jd_file).dropna(subset=["text"])
+        # For each resume row, create N random pairs with JDs from THIS jd_df
+        for _, r_row in resume_df.iterrows():
+          resume_text = str(r_row["text"])
+          # Number of random pairs per resume (adjustable)
+          N_PAIRS = 3
+          sample_jd_texts = jd_df["text"].sample(n=min(N_PAIRS, len(jd_df)), replace=False, random_state=None).tolist()
+          for jd_text in sample_jd_texts:
+            # Random label logic or leave as 0 for now; you could randomize, or use 1 for "synthetic positive" if criteria matches
+            label = 0
+            pairs.append({
+              "resume": resume_text,
+              "jd": jd_text,
+              "label": label
+            })
+          # Optionally, add an extra positive pair (same resume with itself or with a randomly matched JD)
+          pos_jd_text = jd_df["text"].sample(1, random_state=None).iloc[0]
+          pairs.append({
+            "resume": resume_text,
+            "jd": pos_jd_text,
+            "label": 1
+          })
+          if len(pairs) > 3200:  # keep final dataset manageable
+            break
+
+    # Convert pairs to DataFrame for further processing, deduplication, etc.
+    pairs_df = pd.DataFrame(pairs)
+
+    return pairs_df
 
   def tokenize_pair_batch(self, resumes, jds):
     """
@@ -171,22 +203,24 @@ class CrossCheckerModel:
     self.tokenizer.save_pretrained(self.tokenizer_path)
     torch.save(self.model.state_dict(), self.model_path)
 
-    # Pre-cache scores for all possible resume/JD pairs (first 100 only for demo/performance)
+    print("[INFO] Precomputing all resume/JD pairs for ultra-fast lookup...")
     self.score_cache = {}
-    for ix, r_row in resume_df.head(100).iterrows():
+    for ix, r_row in resume_df.iterrows():
       applicant_name = r_row.get("name", f"applicant_{ix}") if "name" in r_row else f"applicant_{ix}"
       resume_text = r_row["text"]
       completeness = float(r_row.get("completeness", 0))
       truthiness = float(r_row.get("truthiness", 0))
-      for jx, j_row in jd_df.head(30).iterrows():
+      for jx, j_row in jd_df.iterrows():
         jd_text = j_row["text"]
-        key = (applicant_name, jd_text[:50])  # JD truncated for key
+        key = (applicant_name, jd_text[:80])  # longer JD key for accuracy
         relevance = self.compute_relevance(resume_text, jd_text)
         self.score_cache[key] = {
-          "completeness": completeness * 100 if completeness < 1.01 else completeness,  # scale as percent if needed
+          "completeness": completeness * 100 if completeness < 1.01 else completeness,
           "truthiness": truthiness * 100 if truthiness < 1.01 else truthiness,
-          "relevance": relevance * 100  # percent for UI
+          "relevance": relevance * 100
         }
+    print(f"[INFO] Precomputed {len(self.score_cache)} resume/JD pairs.")
+
     print(f"[INFO] Crosschecker model trained and scored. Model saved at {self.model_path}")
 
   def compute_relevance(self, resume_text, jd_text):

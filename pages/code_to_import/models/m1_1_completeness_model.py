@@ -6,6 +6,13 @@ from datasets import load_dataset
 from transformers import BertTokenizer, BertForSequenceClassification, Trainer, TrainingArguments
 from sklearn.model_selection import train_test_split
 
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.common.by import By
+import time
+import re
+
 class CompletenessModel:
   """
   Model to assess 'completeness' of projects/claims in resumes.
@@ -27,9 +34,21 @@ class CompletenessModel:
       "promptcloud/indeed-job-posting-dataset",
       "navoneel/industry-relevant-resume-phrases"
     ]
+
     self.base_dir = "training_data"
-    self.resume_outfile = "resume_final.csv"
-    self.jd_outfile = "jd_final.csv"
+    self.resume_dir = os.path.join(self.base_dir, "training_resumes")
+    self.jd_dir = os.path.join(self.base_dir, "training_jds")
+
+    os.makedirs(self.resume_dir, exist_ok=True)
+    os.makedirs(self.jd_dir, exist_ok=True)
+
+    self.resume_outfiles = [
+      os.path.join(self.resume_dir, f"resume_final_{i+1}.csv") for i in range(3)
+    ]
+    self.jd_outfiles = [
+      os.path.join(self.jd_dir, f"jd_final_{i+1}.csv") for i in range(3)
+    ]
+
     self.model_dir = "models/saved"
     self.model_path = os.path.join(self.model_dir, "completeness_bert.pt")
     self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
@@ -72,10 +91,13 @@ class CompletenessModel:
         # Fallback: concatenate all columns as text
         df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
         df["completeness"] = 1
-    resume_df = pd.concat(resume_dfs, ignore_index=True)
-    # Remove duplicates, drop NaN
-    resume_df = resume_df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
-    resume_df = resume_df[["text", "completeness"]]
+
+    # Save each dataset as a separate file
+    for i, df in enumerate(resume_dfs):
+      outfile = self.resume_outfiles[i]
+      df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
+      df = df[["text", "completeness"]]
+      df.to_csv(outfile, index=False)
 
     # JD aggregation
     jd_dfs = []
@@ -89,25 +111,26 @@ class CompletenessModel:
         print(f"[WARN] Could not load {kaggle_id}: {e}")
 
     if jd_dfs:
-      jd_df = pd.concat(jd_dfs, ignore_index=True)
-      # Prefer a column called "text", "description", or fallback
-      jd_text_col = None
-      for col in ["text", "description", "job_description"]:
-        if col in jd_df.columns:
-          jd_text_col = col
-          break
-      if jd_text_col:
-        jd_df = jd_df[[jd_text_col]]
-        jd_df.columns = ["text"]
-      else:
-        jd_df["text"] = jd_df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
-      jd_df = jd_df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
-      jd_df.to_csv(os.path.join(self.base_dir, self.jd_outfile), index=False)  # Save as reference
+      # Save each of the 3 JD datasets as a separate file
+      for i, df in enumerate(jd_dfs):
+        # Prefer a column called "text", "description", or fallback
+        jd_text_col = None
+        for col in ["text", "description", "job_description"]:
+          if col in df.columns:
+            jd_text_col = col
+            break
+        if jd_text_col:
+          df = df[[jd_text_col]]
+          df.columns = ["text"]
+        else:
+          df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
+        df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
+        outfile = self.jd_outfiles[i]
+        df.to_csv(outfile, index=False)
     else:
       print("[WARN] No JD datasets loaded, skipping.")
 
-    # Save resume (base) dataset
-    resume_df.to_csv(os.path.join(self.base_dir, self.resume_outfile), index=False)
+
 
   def create_initial_dataset(self):
     """
@@ -121,7 +144,8 @@ class CompletenessModel:
     """
     Loads processed resume data. Does a simple split into train and eval sets.
     """
-    df = pd.read_csv(os.path.join(self.base_dir, self.resume_outfile))
+    # df = pd.read_csv(os.path.join(self.base_dir, self.resume_outfile))
+    df = pd.read_csv(self.resume_outfile)
     # If 'completeness' is missing or not binary, default to 1 for all (labeling needed later)
     if "completeness" not in df.columns:
       df["completeness"] = 1
@@ -208,19 +232,73 @@ class CompletenessModel:
     #   scores = model(X) -> update CSV)
     outfile = os.path.join(self.base_dir, self.resume_outfile)
     df = pd.read_csv(outfile)
-    # Re-predict completeness with trained model for all entries
-    encodings = self.tokenize_function(df["text"])
-    with torch.no_grad():
-      model.eval()
-      outputs = model(
-        encodings["input_ids"].to(device),
-        attention_mask=encodings["attention_mask"].to(device)
-      )
-      preds = torch.argmax(outputs.logits, axis=1).cpu().numpy()
-    # Set new completeness column
-    df["completeness"] = preds
+
+    driver = init_driver()
+
+    completeness_scores = []
+    for _, row in df.iterrows():
+      try:
+        completeness_scores.append(compute_completeness(row, driver))
+      except Exception:
+        completeness_scores.append(0)
+
+    driver.quit()
+
+    df["completeness"] = completeness_scores
     df.to_csv(outfile, index=False)
     print(f"[INFO] Completeness model trained and applied. Model saved at {self.model_path}")
+
+# Helper to launch a headless Selenium browser
+def init_driver(browser="chrome"):
+  if browser == "firefox":
+    options = FirefoxOptions()
+    options.add_argument("--headless")
+    driver = webdriver.Firefox(options=options)
+  else:
+    options = ChromeOptions()
+    options.add_argument("--headless")
+    driver = webdriver.Chrome(options=options)
+  return driver
+
+# Search relevant links from Google for a given entity and type
+def search_links(query, driver):
+  driver.get(f"https://www.google.com/search?q={query.replace(' ', '+')}")
+  time.sleep(2.0)
+  links = []
+  try:
+    elements = driver.find_elements(By.XPATH, "//a[@href]")
+    for elem in elements:
+      link = elem.get_attribute("href")
+      if any(s in link for s in ['github.com', 'linkedin.com', 'facebook.com', 'leetcode.com']):
+        links.append(link)
+  except:
+    pass
+  return list(set(links))
+
+def compute_completeness(row, driver):
+  text = row["text"]
+  # Identify projects or features in some robust way
+  projects = re.findall(r'project[:\- ](.*?)(?=\.|\n|;|$)', text, flags=re.IGNORECASE)
+  features = re.findall(r'feature[:\- ](.*?)(?=\.|\n|;|$)', text, flags=re.IGNORECASE)
+  score = 0
+  n = 0
+  for proj in projects:
+    result_links = search_links(f"{proj} github", driver)
+    score += 1 if result_links else 0
+    n += 1
+    # Try leetcode for 'solution', 'submission' or similar
+    result_links = search_links(f"{proj} leetcode", driver)
+    score += 1 if result_links else 0
+    n += 1
+  for feature in features:
+    result_links = search_links(f"{feature} linkedin", driver)
+    score += 1 if result_links else 0
+    n += 1
+    result_links = search_links(f"{feature} facebook", driver)
+    score += 1 if result_links else 0
+    n += 1
+  if n == 0: return 0
+  return min(100, int((score / n) * 100))
 
 # Support function for application_evaluator.py
 def create_initial_dataset():

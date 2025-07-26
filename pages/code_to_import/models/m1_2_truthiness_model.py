@@ -1,10 +1,52 @@
 import os
 import pandas as pd
 import numpy as np
+import requests
 import torch
 from datasets import load_dataset
 from transformers import BertTokenizer, BertForSequenceClassification, Trainer, TrainingArguments
 from sklearn.model_selection import train_test_split
+
+import re
+import time
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.common.by import By
+
+def init_driver():
+  options = ChromeOptions()
+  options.add_argument("--headless")
+  options.add_argument("--no-sandbox")
+  options.add_argument("--disable-dev-shm-usage")
+  driver = webdriver.Chrome(options=options)
+  return driver
+
+def search_links(query, driver):
+  driver.get(f"https://www.google.com/search?q={query.replace(' ', '+')}")
+  time.sleep(2.0)
+  links = []
+  try:
+      elements = driver.find_elements(By.XPATH, "//a[@href]")
+    for elem in elements:
+      link = elem.get_attribute("href")
+      if any(s in link for s in ['github.com', 'linkedin.com', 'facebook.com', 'leetcode.com']):
+        links.append(link)
+  except Exception:
+    pass
+  return list(set(links))
+
+def fetch_url_for_person(url, name):
+  try:
+    page = requests.get(url, timeout=10).text.lower()
+    return name.lower() in page
+  except:
+    return False
+
+def extract_features(text):
+  # Basic extraction: project names, features, contributions
+  proj_matches = re.findall(r"project[:\- ](.*?)(?=\.|\n|;|$)", text, flags=re.IGNORECASE)
+  feature_matches = re.findall(r"(feature[s]*[:\- ](.*?)(?=\.|\n|;|$))", text, flags=re.IGNORECASE)
+  return proj_matches, feature_matches
 
 class TruthinessModel:
   """
@@ -17,8 +59,15 @@ class TruthinessModel:
 
   def __init__(self):
     self.base_dir = "training_data"
-    self.resume_infile = "resume_final.csv"
-    self.jd_infile = "jd_final.csv"
+    self.resume_dir = os.path.join(self.base_dir, "training_resumes")
+    self.jd_dir = os.path.join(self.base_dir, "training_jds")
+    self.resume_infiles = [
+      os.path.join(self.resume_dir, f"resume_final_{i+1}.csv") for i in range(3)
+    ]
+    self.jd_infiles = [
+      os.path.join(self.jd_dir, f"jd_final_{i+1}.csv") for i in range(3)
+    ]
+
     self.model_dir = "models/saved"
     self.model_path = os.path.join(self.model_dir, "truthiness_bert.pt")
     self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
@@ -28,7 +77,13 @@ class TruthinessModel:
     """
     Loads resumes with completeness column and JD text as DataFrames.
     """
-    resume_df = pd.read_csv(os.path.join(self.base_dir, self.resume_infile))
+    # resume_df = pd.read_csv(os.path.join(self.base_dir, self.resume_infile))
+
+    for infile in self.resume_infiles:
+      resume_df = pd.read_csv(infile)
+      # ... process as before ...
+      resume_df.to_csv(infile, index=False)
+
     jd_df = pd.read_csv(os.path.join(self.base_dir, self.jd_infile))
     resume_df = resume_df.dropna(subset=["text"])
     jd_df = jd_df.dropna(subset=["text"])
@@ -81,98 +136,106 @@ class TruthinessModel:
     - Predicts 'truthiness' score for each entry and writes to resume_final.csv
     - Model is saved to disk and loaded only at next reboot
     """
-    resume_df, jd_df = self.load_aggregated_datasets()
-
-    # If no resumes or JDs, skip
-    if resume_df.empty or jd_df.empty:
-      print("[WARN] Resume or JD data not found, skipping truthiness model.")
-      return
-
-    pairs_df = self.create_resume_jd_pairs(resume_df, jd_df)
-    # Split
-    X_train, X_eval, y_train, y_eval = train_test_split(
-      pairs_df[["premise", "hypothesis"]], pairs_df["label"],
-      test_size=0.2, random_state=42
-    )
-
-    # Tokenization
-    train_encodings = self.tokenize_pairs(X_train["premise"], X_train["hypothesis"])
-    eval_encodings = self.tokenize_pairs(X_eval["premise"], X_eval["hypothesis"])
-    train_labels = torch.tensor(list(y_train))
-    eval_labels = torch.tensor(list(y_eval))
-
-    class NLIDataset(torch.utils.data.Dataset):
-      def __init__(self, encodings, labels):
-        self.encodings = encodings
-        self.labels = labels
-      def __getitem__(self, idx):
-        item = {key: val[idx] for key, val in self.encodings.items()}
-        item["labels"] = self.labels[idx]
-        return item
-      def __len__(self):
-        return len(self.labels)
-
-    train_dataset = NLIDataset(train_encodings, train_labels)
-    eval_dataset = NLIDataset(eval_encodings, eval_labels)
-
-    model = BertForSequenceClassification.from_pretrained("bert-base-uncased", num_labels=2)
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = model.to(device)
-
-    training_args = TrainingArguments(
-      output_dir=self.model_dir,
-      do_train=True,
-      do_eval=True,
-      num_train_epochs=1,  # Demo epoch for speed, increase as needed
-      per_device_train_batch_size=8,
-      per_device_eval_batch_size=8,
-      warmup_steps=10,
-      weight_decay=0.01,
-      logging_dir='./logs',
-      logging_steps=20,
-      save_strategy="no"
-    )
-
-    trainer = Trainer(
-      model=model,
-      args=training_args,
-      train_dataset=train_dataset,
-      eval_dataset=eval_dataset,
-    )
-
-    print("Training TruthinessModel on resume and JD pairings...")
-    trainer.train()
-    model.save_pretrained(self.model_dir)
-    self.tokenizer.save_pretrained(self.model_dir)
-    torch.save(model.state_dict(), self.model_path)
-
-    # Inference: Predict truthiness for every resume by pairing with JD (simple), and assign max-predicted score.
-    # In a real system, you'd web-search for project verification. Here, we use the 'entailment' head for all pairs.
-    all_truthiness_scores = []
-    for ix, row in resume_df.iterrows():
-      # Pair resume with a sample of JDs for prediction
-      sample_jds = jd_df["text"].sample(min(len(jd_df), 8), random_state=ix).tolist()
-      text = str(row["text"])
-
-      # Build mini-batch
-      encodings = self.tokenize_pairs([text]*len(sample_jds), sample_jds)
-      with torch.no_grad():
-        model.eval()
-        outputs = model(
-          encodings["input_ids"].to(device),
-          attention_mask=encodings["attention_mask"].to(device)
+    for resume_file in self.resume_infiles:
+      for jd_file in self.jd_infiles:
+        resume_df = pd.read_csv(resume_file)
+        jd_df = pd.read_csv(jd_file)
+        if resume_df.empty or jd_df.empty:
+          print(f"[WARN] Resume or JD data not found for {resume_file} or {jd_file}, skipping.")
+          continue
+        pairs_df = self.create_resume_jd_pairs(resume_df, jd_df)
+        # Split
+        X_train, X_eval, y_train, y_eval = train_test_split(
+          pairs_df[["premise", "hypothesis"]], pairs_df["label"],
+          test_size=0.2, random_state=42
         )
 
-        # Probability of "entailment" (class==1), aggregate over JD sample
-        probs = torch.softmax(outputs.logits, -1)
-        p_true = probs[:, 1].mean().item()
-        # Map to score (0–1): threshold >0.5 -> 1 (truthy), else 0 (not truthy)
-        score = 1 if p_true > 0.5 else 0
-      all_truthiness_scores.append(score)
+        # Tokenization
+        train_encodings = self.tokenize_pairs(X_train["premise"], X_train["hypothesis"])
+        eval_encodings = self.tokenize_pairs(X_eval["premise"], X_eval["hypothesis"])
+        train_labels = torch.tensor(list(y_train))
+        eval_labels = torch.tensor(list(y_eval))
 
-    resume_df["truthiness"] = all_truthiness_scores
-    resume_df.to_csv(os.path.join(self.base_dir, self.resume_infile), index=False)
-    print(f"[INFO] Truthiness model trained and applied. Model saved at {self.model_path}")
+        class NLIDataset(torch.utils.data.Dataset):
+          def __init__(self, encodings, labels):
+            self.encodings = encodings
+            self.labels = labels
+          def __getitem__(self, idx):
+            item = {key: val[idx] for key, val in self.encodings.items()}
+            item["labels"] = self.labels[idx]
+            return item
+          def __len__(self):
+            return len(self.labels)
+
+        train_dataset = NLIDataset(train_encodings, train_labels)
+        eval_dataset = NLIDataset(eval_encodings, eval_labels)
+
+        model = BertForSequenceClassification.from_pretrained("bert-base-uncased", num_labels=2)
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        model = model.to(device)
+
+        training_args = TrainingArguments(
+          output_dir=self.model_dir,
+          do_train=True,
+          do_eval=True,
+          num_train_epochs=1,  # Demo epoch for speed, increase as needed
+          per_device_train_batch_size=8,
+          per_device_eval_batch_size=8,
+          warmup_steps=10,
+          weight_decay=0.01,
+          logging_dir='./logs',
+          logging_steps=20,
+          save_strategy="no"
+        )
+
+        trainer = Trainer(
+          model=model,
+          args=training_args,
+          train_dataset=train_dataset,
+          eval_dataset=eval_dataset,
+        )
+
+        print("Training TruthinessModel on resume and JD pairings...")
+        trainer.train()
+        model.save_pretrained(self.model_dir)
+        self.tokenizer.save_pretrained(self.model_dir)
+        torch.save(model.state_dict(), self.model_path)
+
+        # Inference: Predict truthiness for every resume by pairing with JD (simple), and assign max-predicted score.
+        # In a real system, you'd web-search for project verification. Here, we use the 'entailment' head for all pairs.
+        driver = init_driver()
+        truthiness_scores = []
+
+        for _, row in resume_df.iterrows():
+          try:
+            name = row.get("name", "")
+            text = str(row["text"])
+            projects, features = extract_features(text)
+            found = 0
+            total = 0
+            # Collate all entries (projects and features)
+            to_check = list(projects) + list(features)
+            for entry in to_check:
+              for site in ["github", "linkedin", "leetcode", "facebook"]:
+                result_links = search_links(f"{entry} {name} {site}", driver)
+                for link in result_links:
+                  if fetch_url_for_person(link, name):
+                    found += 1
+                    break
+                total += 1
+
+            # Normalize to percent; avoid divide-by-zero
+            score = int((found / total) * 100) if total > 0 else 0
+            truthiness_scores.append(score)
+          except Exception:
+            truthiness_scores.append(0)
+
+        driver.quit()
+        resume_df["truthiness"] = truthiness_scores
+        resume_df.to_csv(os.path.join(self.base_dir, self.resume_infile), index=False)
+
+        print(f"[INFO] Truthiness model trained and applied. Model saved at {self.model_path}")
+        resume_df.to_csv(resume_file, index=False)
 
 # Support function for application_evaluator.py workflow
 def create_initial_dataset():
