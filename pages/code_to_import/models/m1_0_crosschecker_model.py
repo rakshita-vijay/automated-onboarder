@@ -21,7 +21,8 @@ class CrossCheckerModel:
       self.df = pd.DataFrame(columns=['name', 'completeness', 'truthiness'])
 
     self.tokenizer = AutoTokenizer.from_pretrained(emb_model)
-    self.model = AutoModel.from_pretrained(emb_model)
+    # self.model = AutoModel.from_pretrained(emb_model).to("cpu")
+    self.model = AutoModel.from_pretrained(emb_model, torch_dtype=torch.float32, device_map=None).to("cpu")
 
   @torch.no_grad()
   def get_embedding(self, text):
