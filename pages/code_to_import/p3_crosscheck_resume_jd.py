@@ -86,47 +86,49 @@ def resume_x_jd():
       key="jd_select"
     )
 
-  if selected_resume_name and selected_jd_name:
-    selected_resume = resume_file_map[selected_resume_name]
-    selected_jd = jd_file_map[selected_jd_name]
-    applicant_name = get_applicant_name_from_filename(selected_resume)
-    jd_name = os.path.splitext(selected_jd)[0]
+  if st.button("Check selected File against JD"):
+    if selected_resume_name and selected_jd_name:
+      with st.spinner("Check selected File against JD..."):
+        selected_resume = resume_file_map[selected_resume_name]
+        selected_jd = jd_file_map[selected_jd_name]
+        applicant_name = get_applicant_name_from_filename(selected_resume)
+        jd_name = os.path.splitext(selected_jd)[0]
 
-    # Read resume text
-    resume_path = os.path.join(resume_and_supporting_docs_dir, selected_resume)
-    with open(resume_path, 'r', encoding='utf-8') as f:
-      resume_text = f.read()
+        # Read resume text
+        resume_path = os.path.join(resume_and_supporting_docs_dir, selected_resume)
+        with open(resume_path, 'r', encoding='utf-8') as f:
+          resume_text = f.read()
 
-    jd_content = display_jd_content(jd_dir, selected_jd)
+        jd_content = display_jd_content(jd_dir, selected_jd)
 
-    # Call the model
-    from pages.code_to_import.models.m1_0_crosschecker_model import CrossCheckerModel
-    try:
-      crosschecker = CrossCheckerModel()
-      scores = crosschecker.get_scores(applicant_name, resume_text, jd_content)
+        # Call the model
+        from pages.code_to_import.models.m1_0_crosschecker_model import CrossCheckerModel
+        try:
+          crosschecker = CrossCheckerModel()
+          scores = crosschecker.get_scores(applicant_name, resume_text, jd_content)
 
-      # Display scores
-      st.subheader("📊 Evaluation Scores")
-      col1, col2, col3 = st.columns(3)
-      with col1:
-        st.metric("Completeness", f"{scores['completeness']:.1f}%")
-      with col2:
-        st.metric("Truthiness", f"{scores['truthiness']:.1f}%")
-      with col3:
-        st.metric("Relevance", f"{scores['relevance']:.1f}%")
-    except Exception as e:
-      st.error(f"Model evaluation failed: {str(e)}")
+          # Display scores
+          st.subheader("📊 Evaluation Scores")
+          col1, col2, col3 = st.columns(3)
+          with col1:
+            st.metric("Completeness", f"{scores['completeness']:.1f}%")
+          with col2:
+            st.metric("Truthiness", f"{scores['truthiness']:.1f}%")
+          with col3:
+            st.metric("Relevance", f"{scores['relevance']:.1f}%")
+        except Exception as e:
+          st.error(f"Model evaluation failed: {str(e)}")
 
-    # Display comparison box
-    box_col1, box_col2, box_col3 = st.columns([5, 1, 5])
-    with box_col1:
-      st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #222; color: #fff; text-align: center; font-weight: bold;'>{applicant_name}</div>", unsafe_allow_html=True)
-    with box_col2:
-      st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #333; color: #fff; text-align: center; font-size: 1.5em;'>×</div>", unsafe_allow_html=True)
-    with box_col3:
-      st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #222; color: #fff; text-align: center; font-weight: bold;'>{jd_name}</div>", unsafe_allow_html=True)
+        # Display comparison box
+        box_col1, box_col2, box_col3 = st.columns([5, 1, 5])
+        with box_col1:
+          st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #222; color: #fff; text-align: center; font-weight: bold;'>{applicant_name}</div>", unsafe_allow_html=True)
+        with box_col2:
+          st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #333; color: #fff; text-align: center; font-size: 1.5em;'>×</div>", unsafe_allow_html=True)
+        with box_col3:
+          st.markdown(f"<div style='padding: 1em; border: 1px solid #888; border-radius: 8px; background: #222; color: #fff; text-align: center; font-weight: bold;'>{jd_name}</div>", unsafe_allow_html=True)
 
-    st.markdown("#### Job Description Content")
-    st.code(jd_content, language="text")
-  else:
-    st.info("Please select both a resume and a JD file to compare.")
+        st.markdown("#### Job Description Content")
+        st.code(jd_content, language="text")
+    else:
+      st.info("Please select both a resume and a JD file to compare.")
