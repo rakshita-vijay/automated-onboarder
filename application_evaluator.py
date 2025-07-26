@@ -44,6 +44,7 @@ try:
     with st.spinner("Initializing AI models..."):
       CompletenessModel().run()
       TruthinessModel().run()
+
     st.session_state.app_rebooted = False
 except ImportError as e:
   st.warning(f"Model import failed: {e}. Continuing without AI features.")

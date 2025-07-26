@@ -1,6 +1,262 @@
 import os
 import pandas as pd
 import torch
+from transformers import BertTokenizer, BertModel, Trainer, TrainingArguments, BertForSequenceClassification
+from sklearn.model_selection import train_test_split
+import numpy as np
+
+class CrossCheckerModel:
+  """
+  - Loads the final resume dataset after completeness & truthiness have been added, as well as an up-to-date JD data file.
+  - Trains/fine-tunes a BERT model to return a 'relevance' score (resume x JD semantic similarity/classification).
+  - Calculates and returns completeness and truthiness for a given applicant by looking up this final dataset.
+  - Pushing the resume dataset to GitHub happens only at startup/reboot; no accidental overwrite mid-session.
+  - The model is saved and NOT re-trained except on app reboot.
+  - get_scores provides the API for Streamlit integration in evaluation page.
+  """
+
+  def __init__(self):
+    self.base_dir = "training_data"
+    self.resume_file = "resume_final.csv"
+    self.jd_file = "jd_final.csv"
+    self.model_dir = "models/saved"
+    self.model_path = os.path.join(self.model_dir, "crosschecker_bert.pt")
+    self.tokenizer_path = os.path.join(self.model_dir, "crosschecker_tokenizer")
+    self.epochs = 2        # Set to 2 for better learning than the default 1
+    self.score_cache = {}  # For fast lookup after training
+    os.makedirs(self.model_dir, exist_ok=True)
+
+    # Setup tokenizer and model
+    self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+    # Model for pair classification: 2 labels (match, not match/relevant)
+    self.model = BertForSequenceClassification.from_pretrained("bert-base-uncased", num_labels=2)
+    self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    self.model = self.model.to(self.device)
+
+    # Keep track of whether data/model has already been pushed to GitHub in this session
+    self.resume_file_pushed = False
+
+  def push_resume_file_to_github(self):
+    """
+    Pushes the final, edited resume dataset to GitHub ONCE per reboot, never more.
+    Uses the pattern shown in your p1_upload_resume.py, with appropriate adjustments.
+    """
+    if self.resume_file_pushed or not os.path.exists(os.path.join(self.base_dir, self.resume_file)):
+      return
+    try:
+      import git
+      GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+      repo = git.Repo(".")
+      username = "rakshita-vijay"
+      repo_url = f"https://{username}:{GITHUB_TOKEN}@github.com/{username}/automated-onboarder.git"
+      repo.remote().set_url(repo_url)
+      # Only add and commit the CSV file, not JDs or models
+      resume_file_path = os.path.join(self.base_dir, self.resume_file)
+      repo.git.add(resume_file_path)
+      repo.index.commit("Update resume_final.csv with completeness, truthiness, and relevance scores")
+      origin = repo.remote(name="origin")
+      origin.push()
+      self.resume_file_pushed = True
+      print("[INFO] resume_final.csv pushed to GitHub.")
+    except Exception as e:
+      print(f"[WARN] Push to GitHub failed: {e}. Resume file NOT pushed.")
+
+  def load_data(self):
+    """
+    Loads the final resume and JD datasets for model training and lookup.
+    Resume data must already have 'completeness' and 'truthiness' columns added.
+    JD data can be downloaded anew each run.
+    """
+    resume_path = os.path.join(self.base_dir, self.resume_file)
+    jd_path = os.path.join(self.base_dir, self.jd_file)
+    resume_df = pd.read_csv(resume_path)
+    jd_df = pd.read_csv(jd_path)
+    resume_df = resume_df.dropna(subset=["text"])  # ensure all text present
+    jd_df = jd_df.dropna(subset=["text"])
+    return resume_df, jd_df
+
+  def create_pair_dataset(self, resume_df, jd_df, n_per_resume=3):
+    """
+    For each resume entry, pairs it with n random JDs as positive/negative relevance pairs.
+    Positive: the resume vs. a JD that's likely to match its own area (rough simulation).
+    For now, all pairings are treated as potential positive with a similarity measure, but label randomly for demo.
+    """
+    pairs = []
+    for ix, r_row in resume_df.iterrows():
+      resume_text = str(r_row["text"])
+      for _ in range(n_per_resume):
+        # Random JD for the pair (simulate 'irrelevant')
+        sample_jd_text = jd_df.sample(1)["text"].values[0]
+        pairs.append({
+          "resume": resume_text,
+          "jd": sample_jd_text,
+          "label": 0  # negative label
+        })
+      # Also add at least one positive 'matching' pair for each resume (simulate own JD as most relevant)
+      jd_text = jd_df.sample(1)["text"].values[0]
+      pairs.append({
+        "resume": resume_text,
+        "jd": jd_text,
+        "label": 1  # positive label
+      })
+      if len(pairs) > 3200:  # keep final dataset manageable
+        break
+    return pd.DataFrame(pairs)
+
+  def tokenize_pair_batch(self, resumes, jds):
+    """
+    Tokenize batches of resume/JD string pairs for BERT sequence-pair input.
+    """
+    return self.tokenizer(list(resumes), list(jds), padding=True, truncation=True, max_length=256, return_tensors="pt")
+
+  def run(self):
+    """
+    Main entrypoint. Triggers at app reboot/startup:
+    - Loads and/or prepares data, including checking completeness/truthiness columns.
+    - Pushes edited resume_final.csv to GitHub, ONCE.
+    - Trains relevance model (resume x JD semantic/classification) and saves it to models/saved/.
+    - Pre-caches all predicted scores for fast lookup at inference time.
+    """
+    resume_df, jd_df = self.load_data()
+    self.push_resume_file_to_github()  # GitHub push logic
+
+    # Build training data from resume/JD random pairs
+    pairs_df = self.create_pair_dataset(resume_df, jd_df)
+    X_train, X_eval, y_train, y_eval = train_test_split(
+      pairs_df[["resume", "jd"]], pairs_df["label"],
+      test_size=0.2, random_state=42
+    )
+    train_encodings = self.tokenize_pair_batch(X_train["resume"], X_train["jd"])
+    eval_encodings = self.tokenize_pair_batch(X_eval["resume"], X_eval["jd"])
+    train_labels = torch.tensor(list(y_train))
+    eval_labels = torch.tensor(list(y_eval))
+
+    class RelevancePairDataset(torch.utils.data.Dataset):
+      def __init__(self, encodings, labels):
+        self.encodings = encodings
+        self.labels = labels
+      def __getitem__(self, idx):
+        item = {key: val[idx] for key, val in self.encodings.items()}
+        item["labels"] = self.labels[idx]
+        return item
+      def __len__(self):
+        return len(self.labels)
+
+    train_dataset = RelevancePairDataset(train_encodings, train_labels)
+    eval_dataset = RelevancePairDataset(eval_encodings, eval_labels)
+
+    training_args = TrainingArguments(
+      output_dir=self.model_dir,
+      do_train=True,
+      do_eval=True,
+      num_train_epochs=self.epochs,
+      per_device_train_batch_size=8,
+      per_device_eval_batch_size=8,
+      warmup_steps=10,
+      weight_decay=0.01,
+      logging_dir='./logs',
+      logging_steps=20,
+      save_strategy="no"
+    )
+
+    trainer = Trainer(
+      model=self.model,
+      args=training_args,
+      train_dataset=train_dataset,
+      eval_dataset=eval_dataset,
+    )
+    print("[INFO] Training CrossCheckerModel on resume x JD pairings...")
+    trainer.train()
+    self.model.save_pretrained(self.model_dir)
+    self.tokenizer.save_pretrained(self.tokenizer_path)
+    torch.save(self.model.state_dict(), self.model_path)
+
+    # Pre-cache scores for all possible resume/JD pairs (first 100 only for demo/performance)
+    self.score_cache = {}
+    for ix, r_row in resume_df.head(100).iterrows():
+      applicant_name = r_row.get("name", f"applicant_{ix}") if "name" in r_row else f"applicant_{ix}"
+      resume_text = r_row["text"]
+      completeness = float(r_row.get("completeness", 0))
+      truthiness = float(r_row.get("truthiness", 0))
+      for jx, j_row in jd_df.head(30).iterrows():
+        jd_text = j_row["text"]
+        key = (applicant_name, jd_text[:50])  # JD truncated for key
+        relevance = self.compute_relevance(resume_text, jd_text)
+        self.score_cache[key] = {
+          "completeness": completeness * 100 if completeness < 1.01 else completeness,  # scale as percent if needed
+          "truthiness": truthiness * 100 if truthiness < 1.01 else truthiness,
+          "relevance": relevance * 100  # percent for UI
+        }
+    print(f"[INFO] Crosschecker model trained and scored. Model saved at {self.model_path}")
+
+  def compute_relevance(self, resume_text, jd_text):
+    """
+    Takes a resume text and JD text, computes relevance score using BERT-based crosschecker.
+    Returns a float between 0 and 1 (probability the texts 'match').
+    """
+    self.model.eval()
+    encodings = self.tokenizer([resume_text], [jd_text], padding=True, truncation=True, max_length=256, return_tensors="pt")
+    with torch.no_grad():
+      outputs = self.model(
+        encodings["input_ids"].to(self.device),
+        attention_mask=encodings["attention_mask"].to(self.device)
+      )
+      probs = torch.softmax(outputs.logits, -1)
+      relevance = probs[0,1].item()  # Probability of label==1 ("relevant")
+    return float(relevance)
+
+  def get_scores(self, applicant_name, resume_text, jd_text):
+    """
+    API for the Streamlit UI. Looks up completeness/truthiness/relevance scores by resume/JD.
+    Assumes resume_text and jd_text correspond to user selections.
+    """
+    # Try to get precomputed score first
+    key = (applicant_name, jd_text[:50])
+    if key in self.score_cache:
+      return self.score_cache[key]
+
+    # Fallback: compute completeness and truthiness naively
+    # Look them up in the CSV by applicant_name if available
+    resume_df = pd.read_csv(os.path.join(self.base_dir, self.resume_file))
+    # Find the resume by name, else by closest match
+    found_row = None
+    if "name" in resume_df.columns and applicant_name:
+      matches = resume_df[resume_df["name"].str.match(applicant_name, case=False, na=False)]
+      if not matches.empty:
+        found_row = matches.iloc[0]
+    if found_row is None:
+      # fallback: use first row whose text matches
+      matches = resume_df[resume_df["text"] == resume_text]
+      if not matches.empty:
+        found_row = matches.iloc[0]
+    if found_row is None:
+      found_row = resume_df.iloc[0]  # last fallback
+
+    completeness = float(found_row.get("completeness", 0))
+    truthiness = float(found_row.get("truthiness", 0))
+
+    relevance = self.compute_relevance(resume_text, jd_text)
+    # Return all as 0-100 scale for UI
+    return {
+      "completeness": completeness * 100 if completeness < 1.01 else completeness,
+      "truthiness": truthiness * 100 if truthiness < 1.01 else truthiness,
+      "relevance": relevance * 100
+    }
+
+# For integration: supports Streamlit app and compatibility
+def create_initial_dataset():
+  """
+  NO-OP, since the resume_final.csv is expected to be created/updated upstream by completeness & truthiness models.
+  """
+  pass
+
+if __name__ == "__main__":
+  CrossCheckerModel().run()
+
+
+prev = '''import os
+import pandas as pd
+import torch
 from transformers import AutoTokenizer, AutoModel
 
 SENT_EMB_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
@@ -45,3 +301,4 @@ class CrossCheckerModel:
     truthiness = float(row['truthiness'].iloc[0]) if not row.empty else 50.0
     relevance = self.compute_relevance(resume_text, jd_text)
     return {'completeness': completeness, 'truthiness': truthiness, 'relevance': relevance}
+'''
