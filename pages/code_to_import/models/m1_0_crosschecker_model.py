@@ -51,7 +51,8 @@ class CrossCheckerModel:
     Pushes the final, edited resume dataset to GitHub ONCE per reboot, never more.
     Uses the pattern shown in your p1_upload_resume.py, with appropriate adjustments.
     """
-    if self.resume_file_pushed or not os.path.exists(os.path.join(self.base_dir, self.resume_file)):
+    # if self.resume_file_pushed or not os.path.exists(os.path.join(self.base_dir, self.resume_file)):
+    if self.resume_file_pushed or not os.path.exists(self.resume_file):
       return
     try:
       import git
@@ -61,9 +62,10 @@ class CrossCheckerModel:
       repo_url = f"https://{username}:{GITHUB_TOKEN}@github.com/{username}/automated-onboarder.git"
       repo.remote().set_url(repo_url)
       # Only add and commit the CSV file, not JDs or models
-      resume_file_path = os.path.join(self.base_dir, self.resume_file)
+      resume_file_path = self.resume_file  # Use the defined primary file
       repo.git.add(resume_file_path)
-      repo.index.commit("Update resume_final.csv with completeness, truthiness, and relevance scores")
+      repo.index.commit("Update primary resume_final.csv with completeness, truthiness, and relevance scores")
+
       origin = repo.remote(name="origin")
       origin.push()
       self.resume_file_pushed = True
@@ -86,6 +88,12 @@ class CrossCheckerModel:
     self.jd_files = sorted([
       os.path.join(self.jd_dir, f) for f in os.listdir(self.jd_dir) if f.startswith("jd_final_")
     ])
+
+    # Define a primary resume file for GitHub push (e.g., the first one)
+    if self.resume_files:
+      self.resume_file = self.resume_files[0]  # Or choose based on logic, e.g., the most recent
+    else:
+      self.resume_file = os.path.join(self.resume_dir, "resume_final_1.csv")  # Fallback
 
     resume_dfs = [pd.read_csv(f) for f in self.resume_files]
     jd_dfs = [pd.read_csv(f) for f in self.jd_files]
