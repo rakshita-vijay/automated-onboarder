@@ -90,9 +90,17 @@ class CrossCheckerModel:
     resume_dfs = [pd.read_csv(f) for f in self.resume_files]
     jd_dfs = [pd.read_csv(f) for f in self.jd_files]
 
-    resume_df = resume_df.dropna(subset=["text"])  # ensure all text present
-    jd_df = jd_df.dropna(subset=["text"])
-    return resume_df, jd_df
+    # Combine all resume and JD dataframes
+    all_resume_dfs = []
+    all_jd_dfs = []
+    for resume_df in resume_dfs:
+      all_resume_dfs.append(resume_df.dropna(subset=["text"]))
+    for jd_df in jd_dfs:
+      all_jd_dfs.append(jd_df.dropna(subset=["text"]))
+
+    combined_resume_df = pd.concat(all_resume_dfs, ignore_index=True)
+    combined_jd_df = pd.concat(all_jd_dfs, ignore_index=True)
+    return combined_resume_df, combined_jd_df
 
   def create_pair_dataset(self, resume_df, jd_df, n_per_resume=3):
     """
@@ -250,8 +258,18 @@ class CrossCheckerModel:
       return self.score_cache[key]
 
     # Fallback: compute completeness and truthiness naively
-    # Look them up in the CSV by applicant_name if available
-    resume_df = pd.read_csv(os.path.join(self.base_dir, self.resume_file))
+    # Try to find the resume in any of the training files
+    resume_df = None
+    for resume_file in self.resume_files:
+      if os.path.exists(resume_file):
+        temp_df = pd.read_csv(resume_file)
+        if resume_df is None:
+          resume_df = temp_df
+        else:
+          resume_df = pd.concat([resume_df, temp_df], ignore_index=True)
+    if resume_df is None:
+      resume_df = pd.DataFrame(columns=['text', 'completeness', 'truthiness'])
+
     # Find the resume by name, else by closest match
     found_row = None
     if "name" in resume_df.columns and applicant_name:

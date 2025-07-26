@@ -13,6 +13,58 @@ from selenium.webdriver.common.by import By
 import time
 import re
 
+# Helper to launch a headless Selenium browser
+def init_driver(browser="chrome"):
+  if browser == "firefox":
+    options = FirefoxOptions()
+    options.add_argument("--headless")
+    driver = webdriver.Firefox(options=options)
+  else:
+    options = ChromeOptions()
+    options.add_argument("--headless")
+    driver = webdriver.Chrome(options=options)
+  return driver
+
+# Search relevant links from Google for a given entity and type
+def search_links(query, driver):
+  driver.get(f"https://www.google.com/search?q={query.replace(' ', '+')}")
+  time.sleep(2.0)
+  links = []
+  try:
+    elements = driver.find_elements(By.XPATH, "//a[@href]")
+    for elem in elements:
+      link = elem.get_attribute("href")
+      if any(s in link for s in ['github.com', 'linkedin.com', 'facebook.com', 'leetcode.com']):
+        links.append(link)
+  except:
+    pass
+  return list(set(links))
+
+def compute_completeness(row, driver):
+  text = row["text"]
+  # Identify projects or features in some robust way
+  projects = re.findall(r'project[:\- ](.*?)(?=\.|\n|;|$)', text, flags=re.IGNORECASE)
+  features = re.findall(r'feature[:\- ](.*?)(?=\.|\n|;|$)', text, flags=re.IGNORECASE)
+  score = 0
+  n = 0
+  for proj in projects:
+    result_links = search_links(f"{proj} github", driver)
+    score += 1 if result_links else 0
+    n += 1
+    # Try leetcode for 'solution', 'submission' or similar
+    result_links = search_links(f"{proj} leetcode", driver)
+    score += 1 if result_links else 0
+    n += 1
+  for feature in features:
+    result_links = search_links(f"{feature} linkedin", driver)
+    score += 1 if result_links else 0
+    n += 1
+    result_links = search_links(f"{feature} facebook", driver)
+    score += 1 if result_links else 0
+    n += 1
+  if n == 0: return 0
+  return min(100, int((score / n) * 100))
+
 class CompletenessModel:
   """
   Model to assess 'completeness' of projects/claims in resumes.
@@ -136,16 +188,24 @@ class CompletenessModel:
     """
     Only run if resume_final.csv does not exist (as per workflow).
     """
-    outfile = os.path.join(self.base_dir, self.resume_outfile)
-    if not os.path.exists(outfile):
+    # Check if any resume files exist
+    files_exist = any(os.path.exists(f) for f in self.resume_outfiles)
+    if not files_exist:
       self.download_and_aggregate()
+
 
   def load_training_data(self):
     """
     Loads processed resume data. Does a simple split into train and eval sets.
     """
-    # df = pd.read_csv(os.path.join(self.base_dir, self.resume_outfile))
-    df = pd.read_csv(self.resume_outfile)
+    # Load from the first available resume file for training
+    for resume_file in self.resume_outfiles:
+      if os.path.exists(resume_file):
+        df = pd.read_csv(resume_file)
+        break
+    else:
+      raise FileNotFoundError("No resume training files found")
+
     # If 'completeness' is missing or not binary, default to 1 for all (labeling needed later)
     if "completeness" not in df.columns:
       df["completeness"] = 1
@@ -230,8 +290,13 @@ class CompletenessModel:
     # Inference on the base resume dataset: add 'completeness' score for each entry
     # (For now, this just reuses the labels, but in a real use-case you'd do:
     #   scores = model(X) -> update CSV)
-    outfile = os.path.join(self.base_dir, self.resume_outfile)
-    df = pd.read_csv(outfile)
+
+    # Process each resume file with completeness scoring
+    for outfile in self.resume_outfiles:
+      if not os.path.exists(outfile):
+        continue
+      df = pd.read_csv(outfile)
+
 
     driver = init_driver()
 
@@ -247,58 +312,6 @@ class CompletenessModel:
     df["completeness"] = completeness_scores
     df.to_csv(outfile, index=False)
     print(f"[INFO] Completeness model trained and applied. Model saved at {self.model_path}")
-
-# Helper to launch a headless Selenium browser
-def init_driver(browser="chrome"):
-  if browser == "firefox":
-    options = FirefoxOptions()
-    options.add_argument("--headless")
-    driver = webdriver.Firefox(options=options)
-  else:
-    options = ChromeOptions()
-    options.add_argument("--headless")
-    driver = webdriver.Chrome(options=options)
-  return driver
-
-# Search relevant links from Google for a given entity and type
-def search_links(query, driver):
-  driver.get(f"https://www.google.com/search?q={query.replace(' ', '+')}")
-  time.sleep(2.0)
-  links = []
-  try:
-    elements = driver.find_elements(By.XPATH, "//a[@href]")
-    for elem in elements:
-      link = elem.get_attribute("href")
-      if any(s in link for s in ['github.com', 'linkedin.com', 'facebook.com', 'leetcode.com']):
-        links.append(link)
-  except:
-    pass
-  return list(set(links))
-
-def compute_completeness(row, driver):
-  text = row["text"]
-  # Identify projects or features in some robust way
-  projects = re.findall(r'project[:\- ](.*?)(?=\.|\n|;|$)', text, flags=re.IGNORECASE)
-  features = re.findall(r'feature[:\- ](.*?)(?=\.|\n|;|$)', text, flags=re.IGNORECASE)
-  score = 0
-  n = 0
-  for proj in projects:
-    result_links = search_links(f"{proj} github", driver)
-    score += 1 if result_links else 0
-    n += 1
-    # Try leetcode for 'solution', 'submission' or similar
-    result_links = search_links(f"{proj} leetcode", driver)
-    score += 1 if result_links else 0
-    n += 1
-  for feature in features:
-    result_links = search_links(f"{feature} linkedin", driver)
-    score += 1 if result_links else 0
-    n += 1
-    result_links = search_links(f"{feature} facebook", driver)
-    score += 1 if result_links else 0
-    n += 1
-  if n == 0: return 0
-  return min(100, int((score / n) * 100))
 
 # Support function for application_evaluator.py
 def create_initial_dataset():
