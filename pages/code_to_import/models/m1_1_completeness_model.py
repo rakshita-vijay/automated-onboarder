@@ -36,7 +36,25 @@ def download_kaggle_datasets():
           if f.endswith('.txt'):
             with open(fpath, 'r', encoding='utf-8') as fin:
               all_data["resumes"].append(fin.read())
-          # Add similar logic for csv/pdf/docx extraction as in your extract_ functions
+
+          elif f.endswith('.pdf'):
+            all_data["resumes"].append(extract_pdf(fpath))
+
+          elif f.endswith('.docx'):
+            all_data["resumes"].append(extract_docx(fpath))
+
+          elif f.endswith('.csv'):
+            try:
+              df_csv = pd.read_csv(fpath)
+              text_cols = [c for c in df_csv.columns if any(k in c.lower() for k in ['resume', 'text', 'description', 'content'])]
+              if text_cols:
+                for col in text_cols:
+                  all_data["resumes"].extend(df_csv[col].dropna().astype(str).tolist())
+              else:
+                all_data["resumes"].extend(df_csv.astype(str).agg(' '.join, axis=1).tolist())
+            except:
+              pass
+
   # Serially download JDs
   for ds in jd_datasets:
     ddir = os.path.join(TRAIN_JDS_DIR, ds.split("/")[-1])
@@ -48,7 +66,25 @@ def download_kaggle_datasets():
           if f.endswith('.txt'):
             with open(fpath, 'r', encoding='utf-8') as fin:
               all_data["jds"].append(fin.read())
-          # Add similar logic for other formats
+
+          elif f.endswith('.pdf'):
+            all_data["jds"].append(extract_pdf(fpath))
+
+          elif f.endswith('.docx'):
+            all_data["jds"].append(extract_docx(fpath))
+
+          elif f.endswith('.csv'):
+            try:
+              df_csv = pd.read_csv(fpath)
+              text_cols = [c for c in df_csv.columns if any(k in c.lower() for k in ['job_description', 'text', 'description', 'content'])]
+              if text_cols:
+                for col in text_cols:
+                  all_data["jds"].extend(df_csv[col].dropna().astype(str).tolist())
+              else:
+                all_data["jds"].extend(df_csv.astype(str).agg(' '.join, axis=1).tolist())
+            except:
+              pass
+
   return all_data
 
 def create_initial_dataset():
@@ -130,14 +166,23 @@ class CompletenessModel:
 
   def run(self):
     create_initial_dataset()
+
     if os.path.exists(self.csv_out):
       print(f"{self.csv_out} exists; skipping recompute.")
       return self.csv_out
+
     df = pd.read_csv(self.csv_in)
     driver = init_driver()
     tqdm.pandas()
+
     def process_row(row):
       txt = str(row.get("text", ""))[:2500]
+
+      # Extract projects section for verification
+      import re
+      proj_match = re.search(r"project[s]*[:\-](.*?)(?=(\n\n|\Z))", txt, re.DOTALL | re.IGNORECASE)
+      projects = proj_match.group(1).strip() if proj_match else ""
+
       name = extract_name_ner(txt) or row.get("name", "")
       links = str(row.get("links", ""))
       if not ("github" in links or "linkedin" in links):
@@ -145,15 +190,18 @@ class CompletenessModel:
         for s in ["github", "linkedin", "facebook"]:
           if found[s] and found[s] not in links:
             links += "," + found[s]
+
       completeness = sum(f in txt.lower() for f in self.REQUIRED_SECTIONS) / len(self.REQUIRED_SECTIONS)
-      projects = row.get("projects", "")
       if projects:
         completeness += 0.2 * check_project_status_via_web(projects, driver)
-      return pd.Series([name, links.strip(","), min(100, round(completeness * 100, 2))])
-    df[["name", "links", "completeness"]] = df.progress_apply(process_row, axis=1)
+      completeness = min(100, round(completeness * 100, 2))
+      return pd.Series([name, links.strip(","), projects, completeness])
+
+    df[["name", "links", "projects", "completeness"]] = df.progress_apply(process_row, axis=1)
     df.to_csv(self.csv_out, index=False)
     driver.quit()
     print("Completeness scores and social links written to", self.csv_out)
+
     return self.csv_out
 
 if __name__ == "__main__":

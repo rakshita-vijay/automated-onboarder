@@ -28,10 +28,13 @@ def setup_git_repo():
     return None
 
 def extract_name_ner(text):
-  """Extract person name using simple heuristic."""
-  import re
-  words = re.findall(r'\b[A-Z][a-z]+\b', text[:200])
-  return " ".join(words[:2]) if len(words) >= 2 else words[0] if words else ""
+  from transformers import pipeline
+  ner_pipe = pipeline("ner", model=NER_MODEL, grouped_entities=True)
+  ent = ner_pipe(text[:400])
+  for e in ent:
+    if e['entity_group'] == "PER":
+      return e['word']
+  return ""
 
 def fetch_url_text(url, name):
   """Download url and check if the claimed person is really present."""
@@ -77,26 +80,45 @@ class TruthinessModel:
     name = row.get("name") or extract_name_ner(row.get("text",""))
     links = str(row.get("links",""))
     truth = []
+
     for url in links.split(","):
       if "http" in url and fetch_url_text(url, name):
         truth.append(1.)
       else:
         truth.append(0.)
+
     proj = row.get("projects", "")
+
+    if not proj:
+      import re
+      txt = str(row.get("text", ""))
+      proj_match = re.search(r"project[s]*[:\-](.*?)(?=(\n\n|\Z))", txt, re.DOTALL | re.IGNORECASE)
+      proj = proj_match.group(1).strip() if proj_match else ""
+
     facets = extract_projects_features(str(proj))
     facet_scores = []
+
     for facet in facets:
       res = self.fact_pipe(facet, [proj])
       score = float(res["scores"][0]) if "scores" in res else 0
       facet_scores.append(score)
+
     gh_score = 0
     gh_links = [l for l in links.split(",") if "github.com" in l]
+
     if gh_links:
       gh_score = check_github_contributions(gh_links[0], name, facets)
-    if truth: sc1 = max(truth)
-    else: sc1 = 0.
-    if facet_scores: sc2 = sum(facet_scores)/len(facet_scores)
-    else: sc2 = 0.
+
+    if truth:
+      sc1 = max(truth)
+    else:
+      sc1 = 0.
+
+    if facet_scores:
+      sc2 = sum(facet_scores)/len(facet_scores)
+    else:
+      sc2 = 0.
+
     sc3 = gh_score
     return min(100, round((0.4*sc1 + 0.3*sc2 + 0.3*sc3)*100, 2))
 
@@ -114,6 +136,44 @@ class TruthinessModel:
         self.df.at[i, "truthiness"] = 0
 
     self.df.to_csv(self.csv_out, index=False)
+
+
+    # Train regressors on embeddings for fast prediction
+    import numpy as np
+    from sklearn.linear_model import LinearRegression
+    import joblib
+    from transformers import AutoTokenizer, AutoModel
+    import torch
+
+    SENT_EMB_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
+    tokenizer = AutoTokenizer.from_pretrained(SENT_EMB_MODEL)
+    model = AutoModel.from_pretrained(SENT_EMB_MODEL)
+
+    @torch.no_grad()
+    def get_emb(text):
+      inputs = tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=384)
+      emb = model(**inputs).last_hidden_state[:,0,:].squeeze().cpu()
+      return emb
+
+    embeddings = []
+    completeness_labels = []
+    truthiness_labels = []
+
+    for _, row in self.df.iterrows():
+      text = str(row['text'])
+      emb = get_emb(text)
+      embeddings.append(emb.numpy())
+      completeness_labels.append(row['completeness'])
+      truthiness_labels.append(row['truthiness'])
+
+    X = np.stack(embeddings)
+
+    comp_model = LinearRegression().fit(X, completeness_labels)
+    truth_model = LinearRegression().fit(X, truthiness_labels)
+
+    joblib.dump(comp_model, os.path.join(TRAIN_RESUMES_DIR, 'completeness_regressor.joblib'))
+    joblib.dump(truth_model, os.path.join(TRAIN_RESUMES_DIR, 'truthiness_regressor.joblib'))
 
     repo = setup_git_repo()
     if repo:
