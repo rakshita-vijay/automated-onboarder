@@ -69,9 +69,9 @@ class CrossCheckerModel:
       origin = repo.remote(name="origin")
       origin.push()
       self.resume_file_pushed = True
-      print("[INFO] resume_final.csv pushed to GitHub.")
+      st.info("[INFO] resume_final.csv pushed to GitHub.")
     except Exception as e:
-      print(f"[WARN] Push to GitHub failed: {e}. Resume file NOT pushed.")
+      st.warning(f"[WARN] Push to GitHub failed: {e}. Resume file NOT pushed.")
 
   def load_data(self):
     """
@@ -95,19 +95,23 @@ class CrossCheckerModel:
     else:
       self.resume_file = os.path.join(self.resume_dir, "resume_final_1.csv")  # Fallback
 
+    if not self.resume_files:
+      st.warning("[WARN] No resume training files found. Using empty dataframe for resumes.")
+    if not self.jd_files:
+      st.warning("[WARN] No JD training files found. Using empty dataframe for JDs.")
+
     resume_dfs = [pd.read_csv(f) for f in self.resume_files]
     jd_dfs = [pd.read_csv(f) for f in self.jd_files]
 
-    # Combine all resume and JD dataframes
-    all_resume_dfs = []
-    all_jd_dfs = []
-    for resume_df in resume_dfs:
-      all_resume_dfs.append(resume_df.dropna(subset=["text"]))
-    for jd_df in jd_dfs:
-      all_jd_dfs.append(jd_df.dropna(subset=["text"]))
+    # Load and combine all resume and JD dataframes
+    resume_dfs = [pd.read_csv(f) for f in self.resume_files if os.path.exists(f)]
+    jd_dfs = [pd.read_csv(f) for f in self.jd_files if os.path.exists(f)]
 
-    combined_resume_df = pd.concat(all_resume_dfs, ignore_index=True)
-    combined_jd_df = pd.concat(all_jd_dfs, ignore_index=True)
+    all_resume_dfs = [df.dropna(subset=["text"]) for df in resume_dfs]
+    all_jd_dfs = [df.dropna(subset=["text"]) for df in jd_dfs]
+
+    combined_resume_df = pd.concat(all_resume_dfs, ignore_index=True) if all_resume_dfs else pd.DataFrame()
+    combined_jd_df = pd.concat(all_jd_dfs, ignore_index=True) if all_jd_dfs else pd.DataFrame()
     return combined_resume_df, combined_jd_df
 
   def create_pair_dataset(self, resume_df, jd_df, n_per_resume=3):
@@ -213,13 +217,13 @@ class CrossCheckerModel:
       train_dataset=train_dataset,
       eval_dataset=eval_dataset,
     )
-    print("[INFO] Training CrossCheckerModel on resume x JD pairings...")
+    st.info("[INFO] Training CrossCheckerModel on resume x JD pairings...")
     trainer.train()
     self.model.save_pretrained(self.model_dir)
     self.tokenizer.save_pretrained(self.tokenizer_path)
     torch.save(self.model.state_dict(), self.model_path)
 
-    print("[INFO] Precomputing all resume/JD pairs for ultra-fast lookup...")
+    st.info("[INFO] Precomputing all resume/JD pairs for ultra-fast lookup...")
     self.score_cache = {}
     for ix, r_row in resume_df.iterrows():
       applicant_name = r_row.get("name", f"applicant_{ix}") if "name" in r_row else f"applicant_{ix}"
@@ -235,9 +239,9 @@ class CrossCheckerModel:
           "truthiness": truthiness * 100 if truthiness < 1.01 else truthiness,
           "relevance": relevance * 100
         }
-    print(f"[INFO] Precomputed {len(self.score_cache)} resume/JD pairs.")
+    st.info(f"[INFO] Precomputed {len(self.score_cache)} resume/JD pairs.")
 
-    print(f"[INFO] Crosschecker model trained and scored. Model saved at {self.model_path}")
+    st.info(f"[INFO] Crosschecker model trained and scored. Model saved at {self.model_path}")
 
   def compute_relevance(self, resume_text, jd_text):
     """
@@ -332,7 +336,7 @@ class CrossCheckerModel:
     try:
       self.df = pd.read_csv(csv_path)
     except Exception as e:
-      print(f"Warning: CSV load failed: {e}. Creating empty dataframe.")
+      st.warning(f"Warning: CSV load failed: {e}. Creating empty dataframe.")
       self.df = pd.DataFrame(columns=['name', 'completeness', 'truthiness'])
 
     self.tokenizer = AutoTokenizer.from_pretrained(emb_model)

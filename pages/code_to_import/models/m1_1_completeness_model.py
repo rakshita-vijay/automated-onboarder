@@ -123,7 +123,7 @@ class CompletenessModel:
         df = pd.DataFrame(dataset[split])
         resume_dfs.append(df)
       except Exception as e:
-        print(f"[WARN] Could not load {kaggle_id}: {e}")
+        st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
     if not resume_dfs:
       raise RuntimeError("No resume datasets could be loaded.")
 
@@ -160,7 +160,7 @@ class CompletenessModel:
         df = pd.DataFrame(dataset[split])
         jd_dfs.append(df)
       except Exception as e:
-        print(f"[WARN] Could not load {kaggle_id}: {e}")
+        st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
 
     if jd_dfs:
       # Save each of the 3 JD datasets as a separate file
@@ -180,9 +180,7 @@ class CompletenessModel:
         outfile = self.jd_outfiles[i]
         df.to_csv(outfile, index=False)
     else:
-      print("[WARN] No JD datasets loaded, skipping.")
-
-
+      st.warning("[WARN] No JD datasets loaded, skipping.")
 
   def create_initial_dataset(self):
     """
@@ -280,8 +278,8 @@ class CompletenessModel:
     )
 
     # Train BERT model on completeness task
-    print("Training CompletenessModel on resume and JD datasets...")
-    trainer.train()
+    with st.spinner("Training CompletenessModel on resume and JD datasets..."):
+      trainer.train()
     # Save model and tokenizer
     model.save_pretrained(self.model_dir)
     self.tokenizer.save_pretrained(self.model_dir)
@@ -311,7 +309,7 @@ class CompletenessModel:
 
     df["completeness"] = completeness_scores
     df.to_csv(outfile, index=False)
-    print(f"[INFO] Completeness model trained and applied. Model saved at {self.model_path}")
+    st.info(f"[INFO] Completeness model trained and applied. Model saved at {self.model_path}")
 
 # Support function for application_evaluator.py
 def create_initial_dataset():
@@ -422,8 +420,7 @@ def create_initial_dataset():
   resume_df.to_csv(os.path.join(TRAIN_RESUMES_DIR, "resume_data.csv"), index=False)
   jd_df = pd.DataFrame({"text": data["jds"]})
   jd_df.to_csv(os.path.join(TRAIN_JDS_DIR, "jd_data.csv"), index=False)
-  print("Initial datasets created from Kaggle.")
-
+  st.info("Initial datasets created from Kaggle.")
 
 def init_driver():
   options = Options()
@@ -494,7 +491,7 @@ class CompletenessModel:
     create_initial_dataset()
 
     if os.path.exists(self.csv_out):
-      print(f"{self.csv_out} exists; skipping recompute.")
+      st.warning(f"{self.csv_out} exists; skipping recompute.")
       return self.csv_out
 
     df = pd.read_csv(self.csv_in)
@@ -526,7 +523,7 @@ class CompletenessModel:
     df[["name", "links", "projects", "completeness"]] = df.progress_apply(process_row, axis=1)
     df.to_csv(self.csv_out, index=False)
     driver.quit()
-    print("Completeness scores and social links written to", self.csv_out)
+    st.info("Completeness scores and social links written to", self.csv_out)
 
     return self.csv_out
 
