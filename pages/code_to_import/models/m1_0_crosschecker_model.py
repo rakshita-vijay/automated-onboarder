@@ -313,7 +313,6 @@ def create_initial_dataset():
 if __name__ == "__main__":
   CrossCheckerModel().run()
 
-
 prev = '''import os
 import pandas as pd
 import torch

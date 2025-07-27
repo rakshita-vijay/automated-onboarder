@@ -1,5 +1,5 @@
 import streamlit as st
-import os, shutil, base64, git
+import os, sys, shutil, base64, git
 from docx import Document
 from pypdf import PdfReader
 import tempfile
