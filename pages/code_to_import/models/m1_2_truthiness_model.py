@@ -26,7 +26,7 @@ def search_links(query, driver):
   time.sleep(2.0)
   links = []
   try:
-      elements = driver.find_elements(By.XPATH, "//a[@href]")
+    elements = driver.find_elements(By.XPATH, "//a[@href]")
     for elem in elements:
       link = elem.get_attribute("href")
       if any(s in link for s in ['github.com', 'linkedin.com', 'facebook.com', 'leetcode.com']):
@@ -82,6 +82,30 @@ class TruthinessModel:
     for infile in self.resume_infiles:
       resume_df = pd.read_csv(infile)
       # ... process as before ...
+      driver = init_driver()
+      truthiness_scores = []
+      for _, row in resume_df.iterrows():
+        try:
+          name = row.get("name", "")
+          text = str(row["text"])
+          projects, features = extract_features(text)
+          found = 0
+          total = 0
+          to_check = list(projects) + list(features)
+          for entry in to_check:
+            for site in ["github", "linkedin", "leetcode", "facebook"]:
+              result_links = search_links(f"{entry} {name} {site}", driver)
+              for link in result_links:
+                if fetch_url_for_person(link, name):
+                  found += 1
+                  break
+              total += 1
+          score = int((found / total) * 100) if total > 0 else 0
+          truthiness_scores.append(score)
+        except Exception:
+          truthiness_scores.append(0)
+      driver.quit()
+      resume_df["truthiness"] = truthiness_scores
       resume_df.to_csv(infile, index=False)
 
     jd_df = pd.read_csv(os.path.join(self.base_dir, self.jd_infile))
