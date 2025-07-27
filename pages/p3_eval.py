@@ -26,17 +26,7 @@ st.set_page_config(
   page_icon="🧮",
   layout="wide",
   initial_sidebar_state="expanded"
-)
-
-import os 
-
-# Set Kaggle env vars from Streamlit secrets (no file writing)
-if "kaggle" in st.secrets:
-  os.environ["KAGGLE_USERNAME"] = st.secrets["kaggle"]["username"]
-  os.environ["KAGGLE_KEY"] = st.secrets["kaggle"]["key"]
-  st.info("[INFO] Kaggle API credentials set from secrets.")
-else:
-  st.warning("[WARN] Kaggle secrets not found. Downloads may fail without authentication.")
+) 
 
 from the_sidebar import the_sb
 the_sb()
