@@ -13,7 +13,7 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.by import By
- 
+
 # Set Kaggle env vars from Streamlit secrets (no file writing)
 if "kaggle" in st.secrets:
   os.environ["KAGGLE_USERNAME"] = st.secrets["kaggle"]["username"]
@@ -21,13 +21,16 @@ if "kaggle" in st.secrets:
   st.info("[INFO] Kaggle API credentials set from secrets.")
 else:
   st.warning("[WARN] Kaggle secrets not found. Downloads may fail without authentication.")
-  
+
 def init_driver():
+  from webdriver_manager.chrome import ChromeDriverManager
+  from selenium.webdriver.chrome.service import Service as ChromeService
   options = ChromeOptions()
   options.add_argument("--headless")
   options.add_argument("--no-sandbox")
   options.add_argument("--disable-dev-shm-usage")
-  driver = webdriver.Chrome(options=options)
+  service = ChromeService(ChromeDriverManager().install())
+  driver = webdriver.Chrome(service=service, options=options)
   return driver
 
 def search_links(query, driver):
@@ -81,6 +84,104 @@ class TruthinessModel:
     self.model_path = os.path.join(self.model_dir, "truthiness_bert.pt")
     self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
     os.makedirs(self.model_dir, exist_ok=True)
+
+  def download_and_aggregate(self):
+    import glob
+    resume_dfs = []
+    for i, kaggle_id in enumerate(self.resume_datasets):
+      outfile = self.resume_outfiles[i]
+      if os.path.exists(outfile):
+        try:
+          df = pd.read_csv(outfile)
+          st.info(f"[INFO] Loaded local {outfile}")
+          resume_dfs.append(df)
+        except Exception as e:
+          st.warning(f"[WARN] Could not load local file {outfile}: {e}")
+          resume_dfs.append(pd.DataFrame())
+        continue
+      try:
+        st.info(f"[INFO] Downloading {kaggle_id} from Kaggle for resume dataset {i+1}...")
+        dataset = load_dataset("kaggle", kaggle_id)
+        split = list(dataset.keys())[0]
+        df = pd.DataFrame(dataset[split])
+        if "Resume_html" in df.columns:
+          df["text"] = df["Resume_html"].astype(str)
+          df["truthiness"] = 1
+        elif "resume" in df.columns:
+          df["text"] = df["resume"].astype(str)
+          df["truthiness"] = 1
+        elif "text" in df.columns:
+          if "truthiness" not in df.columns:
+            df["truthiness"] = 1
+        else:
+          df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
+          df["truthiness"] = 1
+        df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
+        df = df[["text", "truthiness"]]
+        df.to_csv(outfile, index=False)
+        resume_dfs.append(df)
+        st.success(f"[INFO] Saved resume dataset to {outfile}")
+      except Exception as e:
+        st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
+        resume_dfs.append(pd.DataFrame())
+    if not any([not df.empty for df in resume_dfs]):
+      local_files = glob.glob(os.path.join(self.resume_dir, "resume_final_*.csv"))
+      for f in local_files:
+        try:
+          df = pd.read_csv(f)
+          resume_dfs.append(df)
+        except:
+          pass
+    if all([df.empty for df in resume_dfs]):
+      raise RuntimeError("No resume datasets could be found or downloaded.")
+    jd_dfs = []
+    for i, kaggle_id in enumerate(self.jd_datasets):
+      outfile = self.jd_outfiles[i]
+      if os.path.exists(outfile):
+        try:
+          jd_df = pd.read_csv(outfile)
+          st.info(f"[INFO] Loaded local {outfile}")
+          jd_dfs.append(jd_df)
+        except Exception as e:
+          st.warning(f"[WARN] Could not load local JD file {outfile}: {e}")
+          jd_dfs.append(pd.DataFrame())
+        continue
+      try:
+        st.info(f"[INFO] Downloading {kaggle_id} from Kaggle for JD dataset {i+1}...")
+        dataset = load_dataset("kaggle", kaggle_id)
+        split = list(dataset.keys())[0]
+        df = pd.DataFrame(dataset[split])
+        jd_text_col = None
+        for col in ["text", "description", "job_description"]:
+          if col in df.columns:
+            jd_text_col = col
+            break
+        if jd_text_col:
+          df = df[[jd_text_col]]
+          df.columns = ["text"]
+        else:
+          df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
+        df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
+        df.to_csv(outfile, index=False)
+        jd_dfs.append(df)
+        st.success(f"[INFO] Saved JD dataset to {outfile}")
+      except Exception as e:
+        st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
+        jd_dfs.append(pd.DataFrame())
+    if not any([not df.empty for df in jd_dfs]):
+      local_files = glob.glob(os.path.join(self.jd_dir, "jd_final_*.csv"))
+      for f in local_files:
+        try:
+          df = pd.read_csv(f)
+          jd_dfs.append(df)
+        except:
+          pass
+    if all([df.empty for df in jd_dfs]):
+      st.warning("[WARN] No JD datasets could be found or downloaded.")
+    if all([df.empty for df in resume_dfs]):
+      raise RuntimeError("No usable resume datasets found in training_data/training_resumes/")
+    if all([df.empty for df in jd_dfs]):
+      st.warning("[WARN] All JD datasets are empty!")
 
   def load_aggregated_datasets(self):
     """
@@ -247,10 +348,10 @@ def run(self):
     torch.save(model.state_dict(), self.model_path)
 
     # Web-based truthiness scoring
-    driver = init_driver()
-    truthiness_scores = []
-    for _, row in resume_df.iterrows():
-      try:
+    try:
+      driver = init_driver()
+      truthiness_scores = []
+      for _, row in resume_df.iterrows():
         name = row.get("name", "")
         text = str(row["text"])
         projects, features = extract_features(text)
@@ -264,13 +365,13 @@ def run(self):
               if fetch_url_for_person(link, name):
                 found += 1
                 break
-            total += 1
+          total += 1
         score = int((found / total) * 100) if total > 0 else 0
         truthiness_scores.append(score)
-      except Exception:
-        truthiness_scores.append(0)
-    driver.quit()
-
+      driver.quit()
+    except WebDriverException as e:
+      st.warning(f"Selenium failed: {e}. Using default score 0.")
+      truthiness_scores = [0] * len(resume_df)
     resume_df["truthiness"] = truthiness_scores
     resume_df.to_csv(resume_file, index=False)
 

@@ -5,7 +5,7 @@ import torch
 from transformers import BertTokenizer, BertModel, Trainer, TrainingArguments, BertForSequenceClassification
 from sklearn.model_selection import train_test_split
 import numpy as np
- 
+
 # Set Kaggle env vars from Streamlit secrets (no file writing)
 if "kaggle" in st.secrets:
   os.environ["KAGGLE_USERNAME"] = st.secrets["kaggle"]["username"]
@@ -13,7 +13,7 @@ if "kaggle" in st.secrets:
   st.info("[INFO] Kaggle API credentials set from secrets.")
 else:
   st.warning("[WARN] Kaggle secrets not found. Downloads may fail without authentication.")
-  
+
 class CrossCheckerModel:
   """
   - Loads the final resume dataset after completeness & truthiness have been added, as well as an up-to-date JD data file.
@@ -72,6 +72,11 @@ class CrossCheckerModel:
       repo.remote().set_url(repo_url)
       # Only add and commit the CSV file, not JDs or models
       resume_file_path = self.resume_file  # Use the defined primary file
+
+      if not os.environ.get("GITHUB_TOKEN"):
+        st.warning("GitHub token missing; pushes disabled.")
+        return
+
       repo.git.add(resume_file_path)
       repo.index.commit("Update primary resume_final.csv with completeness, truthiness, and relevance scores")
 
@@ -123,7 +128,7 @@ class CrossCheckerModel:
     combined_jd_df = pd.concat(all_jd_dfs, ignore_index=True) if all_jd_dfs else pd.DataFrame()
     return combined_resume_df, combined_jd_df
 
-  def create_pair_dataset(self, resume_df, jd_df, n_per_resume=3):
+  def create_pair_dataset(self, resume_df, jd_df, n_per_resume=1):
     """
     For each resume entry, pairs it with n random JDs as positive/negative relevance pairs.
     Positive: the resume vs. a JD that's likely to match its own area (rough simulation).
@@ -135,33 +140,22 @@ class CrossCheckerModel:
       resume_df = pd.read_csv(resume_file).dropna(subset=["text"])
       for jd_file in self.jd_files:
         jd_df = pd.read_csv(jd_file).dropna(subset=["text"])
-        # For each resume row, create N random pairs with JDs from THIS jd_df
         for _, r_row in resume_df.iterrows():
           resume_text = str(r_row["text"])
-          # Number of random pairs per resume (adjustable)
-          N_PAIRS = 3
+          N_PAIRS = 1
           sample_jd_texts = jd_df["text"].sample(n=min(N_PAIRS, len(jd_df)), replace=False, random_state=None).tolist()
           for jd_text in sample_jd_texts:
-            # Random label logic or leave as 0 for now; you could randomize, or use 1 for "synthetic positive" if criteria matches
             label = 0
-            pairs.append({
-              "resume": resume_text,
-              "jd": jd_text,
-              "label": label
-            })
-          # Optionally, add an extra positive pair (same resume with itself or with a randomly matched JD)
+            pairs.append({"resume": resume_text, "jd": jd_text, "label": label})
           pos_jd_text = jd_df["text"].sample(1, random_state=None).iloc[0]
-          pairs.append({
-            "resume": resume_text,
-            "jd": pos_jd_text,
-            "label": 1
-          })
-          if len(pairs) > 3200:  # keep final dataset manageable
+          pairs.append({"resume": resume_text, "jd": pos_jd_text, "label": 1})
+          if len(pairs) > 3201:
             break
 
-    # Convert pairs to DataFrame for further processing, deduplication, etc.
-    pairs_df = pd.DataFrame(pairs)
+    if len(pairs) > 3200:
+      pairs = pairs[:3200]
 
+    pairs_df = pd.DataFrame(pairs)
     return pairs_df
 
   def tokenize_pair_batch(self, resumes, jds):
@@ -227,7 +221,16 @@ class CrossCheckerModel:
       eval_dataset=eval_dataset,
     )
     st.info("[INFO] Training CrossCheckerModel on resume x JD pairings...")
-    trainer.train()
+    # trainer.train()
+    if resume_df.empty:
+      st.warning("No data; skipping training.")
+      return
+    try:
+      trainer.train()
+    except Exception as e:
+      st.error(f"Training failed: {e}")
+      return
+
     self.model.save_pretrained(self.model_dir)
     self.tokenizer.save_pretrained(self.tokenizer_path)
     torch.save(self.model.state_dict(), self.model_path)

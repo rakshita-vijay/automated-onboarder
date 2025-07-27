@@ -23,6 +23,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+if 'app_rebooted' not in st.session_state:
+  st.session_state.app_rebooted = True
+
 # Model startup calls
 try:
   from pages.code_to_import.models.m1_1_completeness_model import CompletenessModel

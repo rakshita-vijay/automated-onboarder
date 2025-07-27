@@ -24,14 +24,20 @@ else:
 
 # Helper to launch a headless Selenium browser
 def init_driver(browser="chrome"):
-  if browser == "firefox":
-    options = FirefoxOptions()
-    options.add_argument("--headless")
-    driver = webdriver.Firefox(options=options)
-  else:
+  from webdriver_manager.chrome import ChromeDriverManager
+  from webdriver_manager.firefox import GeckoDriverManager
+  from selenium.webdriver.chrome.service import Service as ChromeService
+  from selenium.webdriver.firefox.service import Service as FirefoxService
+  if browser == "chrome":
+    service = ChromeService(ChromeDriverManager().install())
     options = ChromeOptions()
     options.add_argument("--headless")
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(service=service, options=options)
+  else:
+    service = FirefoxService(GeckoDriverManager().install())
+    options = FirefoxOptions()
+    options.add_argument("--headless")
+    driver = webdriver.Firefox(service=service, options=options)
   return driver
 
 # Search relevant links from Google for a given entity and type
@@ -119,90 +125,101 @@ class CompletenessModel:
 
   def download_and_aggregate(self):
     import glob
-
-    # RESUMES
     resume_dfs = []
     for i, kaggle_id in enumerate(self.resume_datasets):
       outfile = self.resume_outfiles[i]
-      # Try load local first
       if os.path.exists(outfile):
         try:
           df = pd.read_csv(outfile)
-          st.info(f"[INFO] Loaded cached resume dataset: {outfile} ({len(df)} rows)")
+          st.info(f"[INFO] Loaded local {outfile}")
           resume_dfs.append(df)
-          continue
         except Exception as e:
-          st.warning(f"[WARN] Could not load {outfile}: {e}")
-      # Download if missing
+          st.warning(f"[WARN] Could not load local file {outfile}: {e}")
+          resume_dfs.append(pd.DataFrame())
+        continue
       try:
-        st.info(f"Trying to download {kaggle_id} for resume {i+1} ...")
+        st.info(f"[INFO] Downloading {kaggle_id} from Kaggle for resume dataset {i+1}...")
         dataset = load_dataset("kaggle", kaggle_id)
         split = list(dataset.keys())[0]
         df = pd.DataFrame(dataset[split])
         if "Resume_html" in df.columns:
           df["text"] = df["Resume_html"].astype(str)
+          df["completeness"] = 1
         elif "resume" in df.columns:
           df["text"] = df["resume"].astype(str)
-        elif "text" not in df.columns:
-          df["text"] = df.astype(str).agg(' '.join, axis=1)
-        df["completeness"] = 1
+          df["completeness"] = 1
+        elif "text" in df.columns:
+          if "completeness" not in df.columns:
+            df["completeness"] = 1
+        else:
+          df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
+          df["completeness"] = 1
         df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
         df = df[["text", "completeness"]]
         df.to_csv(outfile, index=False)
         resume_dfs.append(df)
-        st.success(f"[SUCCESS] {outfile}: {len(df)} rows written.")
+        st.success(f"[INFO] Saved resume dataset to {outfile}")
       except Exception as e:
-        st.warning(f"[FAILED] Dataset {kaggle_id}: {e}")
+        st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
         resume_dfs.append(pd.DataFrame())
-        continue
-    # After loop: warn if any files are empty/missing
-    for f, d in zip(self.resume_outfiles, resume_dfs):
-      if not os.path.exists(f) or d.empty:
-        st.warning(f"[WARN] Resume file {f} was not downloaded or is empty!")
-    if not any([len(df) for df in resume_dfs]):
-      raise RuntimeError("No usable resume datasets found.")
-
-    # JDs
-    jd_dfs = []
-    for i, kaggle_id in enumerate(self.jd_datasets):
-      outfile = self.jd_outfiles[i]
-      if os.path.exists(outfile):
-        try:
-          df = pd.read_csv(outfile)
-          st.info(f"[INFO] Loaded cached JD dataset: {outfile} ({len(df)} rows)")
-          jd_dfs.append(df)
-          continue
-        except Exception as e:
-          st.warning(f"[WARN] Could not load jd file {outfile}: {e}")
+  if not any([not df.empty for df in resume_dfs]):
+    local_files = glob.glob(os.path.join(self.resume_dir, "resume_final_*.csv"))
+    for f in local_files:
       try:
-        st.info(f"Trying to download {kaggle_id} for JD {i+1} ...")
-        dataset = load_dataset("kaggle", kaggle_id)
-        split = list(dataset.keys())[0]
-        df = pd.DataFrame(dataset[split])
-        jd_text_col = None
-        for col in ["text", "description", "job_description"]:
-          if col in df.columns:
-            jd_text_col = col
-            break
-        if jd_text_col:
-          df = df[[jd_text_col]]
-          df.columns = ["text"]
-        else:
-          df["text"] = df.astype(str).agg(' '.join, axis=1)
-        df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
-        df.to_csv(outfile, index=False)
-        jd_dfs.append(df)
-        st.success(f"[SUCCESS] {outfile}: {len(df)} rows written.")
+        df = pd.read_csv(f)
+        resume_dfs.append(df)
+      except:
+        pass
+  if all([df.empty for df in resume_dfs]):
+    raise RuntimeError("No resume datasets could be found or downloaded.")
+  jd_dfs = []
+  for i, kaggle_id in enumerate(self.jd_datasets):
+    outfile = self.jd_outfiles[i]
+    if os.path.exists(outfile):
+      try:
+        jd_df = pd.read_csv(outfile)
+        st.info(f"[INFO] Loaded local {outfile}")
+        jd_dfs.append(jd_df)
       except Exception as e:
-        st.warning(f"[FAILED] JD dataset {kaggle_id}: {e}")
+        st.warning(f"[WARN] Could not load local JD file {outfile}: {e}")
         jd_dfs.append(pd.DataFrame())
-        continue
-    # After loop: warn if any files are empty/missing
-    for f, d in zip(self.jd_outfiles, jd_dfs):
-      if not os.path.exists(f) or d.empty:
-        st.warning(f"[WARN] JD file {f} was not downloaded or is empty!")
-    if not any([len(df) for df in jd_dfs]):
-      st.warning("[WARN] No usable JD datasets found.")
+      continue
+    try:
+      st.info(f"[INFO] Downloading {kaggle_id} from Kaggle for JD dataset {i+1}...")
+      dataset = load_dataset("kaggle", kaggle_id)
+      split = list(dataset.keys())[0]
+      df = pd.DataFrame(dataset[split])
+      jd_text_col = None
+      for col in ["text", "description", "job_description"]:
+        if col in df.columns:
+          jd_text_col = col
+          break
+      if jd_text_col:
+        df = df[[jd_text_col]]
+        df.columns = ["text"]
+      else:
+        df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
+      df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
+      df.to_csv(outfile, index=False)
+      jd_dfs.append(df)
+      st.success(f"[INFO] Saved JD dataset to {outfile}")
+    except Exception as e:
+      st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
+      jd_dfs.append(pd.DataFrame())
+  if not any([not df.empty for df in jd_dfs]):
+    local_files = glob.glob(os.path.join(self.jd_dir, "jd_final_*.csv"))
+    for f in local_files:
+      try:
+        df = pd.read_csv(f)
+        jd_dfs.append(df)
+      except:
+        pass
+  if all([df.empty for df in jd_dfs]):
+    st.warning("[WARN] No JD datasets could be found or downloaded.")
+  if all([df.empty for df in resume_dfs]):
+    raise RuntimeError("No usable resume datasets found in training_data/training_resumes/")
+  if all([df.empty for df in jd_dfs]):
+    st.warning("[WARN] All JD datasets are empty!")
 
   def create_initial_dataset(self):
     """
@@ -316,21 +333,18 @@ class CompletenessModel:
       if not os.path.exists(outfile):
         continue
       df = pd.read_csv(outfile)
-
-
-    driver = init_driver()
-
-    completeness_scores = []
-    for _, row in df.iterrows():
       try:
-        completeness_scores.append(compute_completeness(row, driver))
-      except Exception:
-        completeness_scores.append(0)
+        driver = init_driver()
+        completeness_scores = []
+        for _, row in df.iterrows():
+          completeness_scores.append(compute_completeness(row, driver))
+        driver.quit()
+      except WebDriverException as e:
+        st.warning(f"Selenium failed: {e}. Using default score 0.")
+        completeness_scores = [0] * len(df)
+      df["completeness"] = completeness_scores
+      df.to_csv(outfile, index=False)
 
-    driver.quit()
-
-    df["completeness"] = completeness_scores
-    df.to_csv(outfile, index=False)
     st.info(f"[INFO] Completeness model trained and applied. Model saved at {self.model_path}")
 
 # Support function for application_evaluator.py
