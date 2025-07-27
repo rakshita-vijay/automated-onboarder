@@ -5,7 +5,15 @@ import torch
 from transformers import BertTokenizer, BertModel, Trainer, TrainingArguments, BertForSequenceClassification
 from sklearn.model_selection import train_test_split
 import numpy as np
-
+ 
+# Set Kaggle env vars from Streamlit secrets (no file writing)
+if "kaggle" in st.secrets:
+  os.environ["KAGGLE_USERNAME"] = st.secrets["kaggle"]["username"]
+  os.environ["KAGGLE_KEY"] = st.secrets["kaggle"]["key"]
+  st.info("[INFO] Kaggle API credentials set from secrets.")
+else:
+  st.warning("[WARN] Kaggle secrets not found. Downloads may fail without authentication.")
+  
 class CrossCheckerModel:
   """
   - Loads the final resume dataset after completeness & truthiness have been added, as well as an up-to-date JD data file.
