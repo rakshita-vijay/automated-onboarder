@@ -109,64 +109,153 @@ class CompletenessModel:
     os.makedirs(self.model_dir, exist_ok=True)
     os.makedirs(self.base_dir, exist_ok=True)
 
+  # def download_and_aggregate(self):
+  #   """
+  #   Download resume and JD datasets from Kaggle via HuggingFace Datasets.
+  #   All files are concatenated into single DataFrames and saved.
+  #   """
+  #   # Resume data aggregation
+  #   resume_dfs = []
+  #   for kaggle_id in self.resume_datasets:
+  #     try:
+  #       dataset = load_dataset("kaggle", kaggle_id)
+  #       # Take only first available split for simplicity
+  #       split = list(dataset.keys())[0]
+  #       df = pd.DataFrame(dataset[split])
+  #       resume_dfs.append(df)
+  #     except Exception as e:
+  #       st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
+  #   if not resume_dfs:
+  #     raise RuntimeError("No resume datasets could be loaded.")
+
+  #   # Try to extract a sensible column for training
+  #   for df in resume_dfs:
+  #     # Add 'text' and 'label' (for completeness) columns where possible
+  #     if "Resume_html" in df.columns:
+  #       df["text"] = df["Resume_html"].astype(str)
+  #       df["completeness"] = 1  # Assume all entries 'complete'; will be refined
+  #     elif "resume" in df.columns:
+  #       df["text"] = df["resume"].astype(str)
+  #       df["completeness"] = 1
+  #     elif "text" in df.columns:
+  #       if "completeness" not in df.columns:
+  #         df["completeness"] = 1
+  #     else:
+  #       # Fallback: concatenate all columns as text
+  #       df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
+  #       df["completeness"] = 1
+
+  #   # Save each dataset as a separate file
+  #   for i, df in enumerate(resume_dfs):
+  #     outfile = self.resume_outfiles[i]
+  #     df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
+  #     df = df[["text", "completeness"]]
+  #     df.to_csv(outfile, index=False)
+
+  #   # JD aggregation
+  #   jd_dfs = []
+  #   for kaggle_id in self.jd_datasets:
+  #     try:
+  #       dataset = load_dataset("kaggle", kaggle_id)
+  #       split = list(dataset.keys())[0]
+  #       df = pd.DataFrame(dataset[split])
+  #       jd_dfs.append(df)
+  #     except Exception as e:
+  #       st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
+
+  #   if jd_dfs:
+  #     # Save each of the 3 JD datasets as a separate file
+  #     for i, df in enumerate(jd_dfs):
+  #       # Prefer a column called "text", "description", or fallback
+  #       jd_text_col = None
+  #       for col in ["text", "description", "job_description"]:
+  #         if col in df.columns:
+  #           jd_text_col = col
+  #           break
+  #       if jd_text_col:
+  #         df = df[[jd_text_col]]
+  #         df.columns = ["text"]
+  #       else:
+  #         df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
+  #       df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
+  #       outfile = self.jd_outfiles[i]
+  #       df.to_csv(outfile, index=False)
+  #   else:
+  #     st.warning("[WARN] No JD datasets loaded, skipping.")
+
   def download_and_aggregate(self):
-    """
-    Download resume and JD datasets from Kaggle via HuggingFace Datasets.
-    All files are concatenated into single DataFrames and saved.
-    """
-    # Resume data aggregation
+    import glob
+
+    # Download/aggregate RESUMES
     resume_dfs = []
-    for kaggle_id in self.resume_datasets:
-      try:
-        dataset = load_dataset("kaggle", kaggle_id)
-        # Take only first available split for simplicity
-        split = list(dataset.keys())[0]
-        df = pd.DataFrame(dataset[split])
-        resume_dfs.append(df)
-      except Exception as e:
-        st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
-    if not resume_dfs:
-      raise RuntimeError("No resume datasets could be loaded.")
-
-    # Try to extract a sensible column for training
-    for df in resume_dfs:
-      # Add 'text' and 'label' (for completeness) columns where possible
-      if "Resume_html" in df.columns:
-        df["text"] = df["Resume_html"].astype(str)
-        df["completeness"] = 1  # Assume all entries 'complete'; will be refined
-      elif "resume" in df.columns:
-        df["text"] = df["resume"].astype(str)
-        df["completeness"] = 1
-      elif "text" in df.columns:
-        if "completeness" not in df.columns:
-          df["completeness"] = 1
-      else:
-        # Fallback: concatenate all columns as text
-        df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
-        df["completeness"] = 1
-
-    # Save each dataset as a separate file
-    for i, df in enumerate(resume_dfs):
+    for i, kaggle_id in enumerate(self.resume_datasets):
       outfile = self.resume_outfiles[i]
-      df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
-      df = df[["text", "completeness"]]
-      df.to_csv(outfile, index=False)
-
-    # JD aggregation
-    jd_dfs = []
-    for kaggle_id in self.jd_datasets:
+      if os.path.exists(outfile):
+        # Already downloaded—load from disk, skip download
+        try:
+          df = pd.read_csv(outfile)
+          st.info(f"[INFO] Loaded local {outfile}")
+          resume_dfs.append(df)
+        except Exception as e:
+          st.warning(f"[WARN] Could not load local file {outfile}: {e}")
+          resume_dfs.append(pd.DataFrame())
+        continue
+      # Attempt Kaggle load via datasets
       try:
+        st.info(f"[INFO] Downloading {kaggle_id} from Kaggle for resume dataset {i+1}...")
         dataset = load_dataset("kaggle", kaggle_id)
         split = list(dataset.keys())[0]
         df = pd.DataFrame(dataset[split])
-        jd_dfs.append(df)
+        # Add text/completeness columns if not present
+        if "Resume_html" in df.columns:
+          df["text"] = df["Resume_html"].astype(str)
+          df["completeness"] = 1
+        elif "resume" in df.columns:
+          df["text"] = df["resume"].astype(str)
+          df["completeness"] = 1
+        elif "text" in df.columns:
+          if "completeness" not in df.columns:
+            df["completeness"] = 1
+        else:
+          df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
+          df["completeness"] = 1
+        df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
+        df = df[["text", "completeness"]]
+        df.to_csv(outfile, index=False)
+        resume_dfs.append(df)
+        st.success(f"[INFO] Saved resume dataset to {outfile}")
       except Exception as e:
         st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
+        resume_dfs.append(pd.DataFrame())
+    # If still nothing, search for any local matching CSVs (fallback for debugging/cold start)
+    if not any([not df.empty for df in resume_dfs]):
+      local_files = glob.glob(os.path.join(self.resume_dir, "resume_final_*.csv"))
+      for f in local_files:
+        try:
+          df = pd.read_csv(f)
+          resume_dfs.append(df)
+        except: pass
+      if not resume_dfs or all([df.empty for df in resume_dfs]):
+        raise RuntimeError("No resume datasets could be found or downloaded.")
 
-    if jd_dfs:
-      # Save each of the 3 JD datasets as a separate file
-      for i, df in enumerate(jd_dfs):
-        # Prefer a column called "text", "description", or fallback
+    # Download/aggregate JDs
+    jd_dfs = []
+    for i, kaggle_id in enumerate(self.jd_datasets):
+      outfile = self.jd_outfiles[i]
+      if os.path.exists(outfile):
+        try:
+          jd_df = pd.read_csv(outfile)
+          st.info(f"[INFO] Loaded local {outfile}")
+          jd_dfs.append(jd_df)
+        except Exception as e:
+          st.warning(f"[WARN] Could not load local JD file {outfile}: {e}")
+          jd_dfs.append(pd.DataFrame())
+        continue
+      try:
+        st.info(f"[INFO] Downloading {kaggle_id} from Kaggle for JD dataset {i+1}...")
+        dataset = load_dataset("kaggle", kaggle_id)
+        split = list(dataset.keys())[0]
+        df = pd.DataFrame(dataset[split])
         jd_text_col = None
         for col in ["text", "description", "job_description"]:
           if col in df.columns:
@@ -178,10 +267,30 @@ class CompletenessModel:
         else:
           df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
         df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
-        outfile = self.jd_outfiles[i]
         df.to_csv(outfile, index=False)
-    else:
-      st.warning("[WARN] No JD datasets loaded, skipping.")
+        jd_dfs.append(df)
+        st.success(f"[INFO] Saved JD dataset to {outfile}")
+      except Exception as e:
+        st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
+        jd_dfs.append(pd.DataFrame())
+    # Fallback: search for local JD CSVs if none were downloaded
+    if not any([not df.empty for df in jd_dfs]):
+      local_files = glob.glob(os.path.join(self.jd_dir, "jd_final_*.csv"))
+      for f in local_files:
+        try:
+          df = pd.read_csv(f)
+          jd_dfs.append(df)
+        except: pass
+      if not jd_dfs or all([df.empty for df in jd_dfs]):
+        st.warning("[WARN] No JD datasets could be found or downloaded.")
+
+    # At this point, all files are (at least empty frames or loaded). If ALL still empty, raise error.
+    if all([df.empty for df in resume_dfs]):
+      raise RuntimeError("No usable resume datasets found in training_data/training_resumes/")
+    if all([df.empty for df in jd_dfs]):
+      st.warning("[WARN] All JD datasets are empty!")
+
+    # Done! Now everything downstream (truthiness, crosschecker, evaluation) works!
 
   def create_initial_dataset(self):
     """
