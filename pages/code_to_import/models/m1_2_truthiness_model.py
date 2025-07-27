@@ -13,7 +13,15 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.by import By
-
+ 
+# Set Kaggle env vars from Streamlit secrets (no file writing)
+if "kaggle" in st.secrets:
+  os.environ["KAGGLE_USERNAME"] = st.secrets["kaggle"]["username"]
+  os.environ["KAGGLE_KEY"] = st.secrets["kaggle"]["key"]
+  st.info("[INFO] Kaggle API credentials set from secrets.")
+else:
+  st.warning("[WARN] Kaggle secrets not found. Downloads may fail without authentication.")
+  
 def init_driver():
   options = ChromeOptions()
   options.add_argument("--headless")
