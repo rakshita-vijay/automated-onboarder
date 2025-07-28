@@ -162,64 +162,64 @@ class CompletenessModel:
       except Exception as e:
         st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
         resume_dfs.append(pd.DataFrame())
-  if not any([not df.empty for df in resume_dfs]):
-    local_files = glob.glob(os.path.join(self.resume_dir, "resume_final_*.csv"))
-    for f in local_files:
+    if not any([not df.empty for df in resume_dfs]):
+      local_files = glob.glob(os.path.join(self.resume_dir, "resume_final_*.csv"))
+      for f in local_files:
+        try:
+          df = pd.read_csv(f)
+          resume_dfs.append(df)
+        except:
+          pass
+    if all([df.empty for df in resume_dfs]):
+      raise RuntimeError("No resume datasets could be found or downloaded.")
+    jd_dfs = []
+    for i, kaggle_id in enumerate(self.jd_datasets):
+      outfile = self.jd_outfiles[i]
+      if os.path.exists(outfile):
+        try:
+          jd_df = pd.read_csv(outfile)
+          st.info(f"[INFO] Loaded local {outfile}")
+          jd_dfs.append(jd_df)
+        except Exception as e:
+          st.warning(f"[WARN] Could not load local JD file {outfile}: {e}")
+          jd_dfs.append(pd.DataFrame())
+        continue
       try:
-        df = pd.read_csv(f)
-        resume_dfs.append(df)
-      except:
-        pass
-  if all([df.empty for df in resume_dfs]):
-    raise RuntimeError("No resume datasets could be found or downloaded.")
-  jd_dfs = []
-  for i, kaggle_id in enumerate(self.jd_datasets):
-    outfile = self.jd_outfiles[i]
-    if os.path.exists(outfile):
-      try:
-        jd_df = pd.read_csv(outfile)
-        st.info(f"[INFO] Loaded local {outfile}")
-        jd_dfs.append(jd_df)
-      except Exception as e:
-        st.warning(f"[WARN] Could not load local JD file {outfile}: {e}")
-        jd_dfs.append(pd.DataFrame())
-      continue
-    try:
-      st.info(f"[INFO] Downloading {kaggle_id} from Kaggle for JD dataset {i+1}...")
-      dataset = load_dataset("kaggle", kaggle_id)
-      split = list(dataset.keys())[0]
-      df = pd.DataFrame(dataset[split])
-      jd_text_col = None
-      for col in ["text", "description", "job_description"]:
-        if col in df.columns:
-          jd_text_col = col
-          break
-      if jd_text_col:
-        df = df[[jd_text_col]]
-        df.columns = ["text"]
-      else:
-        df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
-      df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
-      df.to_csv(outfile, index=False)
-      jd_dfs.append(df)
-      st.success(f"[INFO] Saved JD dataset to {outfile}")
-    except Exception as e:
-      st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
-      jd_dfs.append(pd.DataFrame())
-  if not any([not df.empty for df in jd_dfs]):
-    local_files = glob.glob(os.path.join(self.jd_dir, "jd_final_*.csv"))
-    for f in local_files:
-      try:
-        df = pd.read_csv(f)
+        st.info(f"[INFO] Downloading {kaggle_id} from Kaggle for JD dataset {i+1}...")
+        dataset = load_dataset("kaggle", kaggle_id)
+        split = list(dataset.keys())[0]
+        df = pd.DataFrame(dataset[split])
+        jd_text_col = None
+        for col in ["text", "description", "job_description"]:
+          if col in df.columns:
+            jd_text_col = col
+            break
+        if jd_text_col:
+          df = df[[jd_text_col]]
+          df.columns = ["text"]
+        else:
+          df["text"] = df.apply(lambda row: " ".join(row.values.astype(str)), axis=1)
+        df = df.drop_duplicates(subset=["text"]).dropna(subset=["text"])
+        df.to_csv(outfile, index=False)
         jd_dfs.append(df)
-      except:
-        pass
-  if all([df.empty for df in jd_dfs]):
-    st.warning("[WARN] No JD datasets could be found or downloaded.")
-  if all([df.empty for df in resume_dfs]):
-    raise RuntimeError("No usable resume datasets found in training_data/training_resumes/")
-  if all([df.empty for df in jd_dfs]):
-    st.warning("[WARN] All JD datasets are empty!")
+        st.success(f"[INFO] Saved JD dataset to {outfile}")
+      except Exception as e:
+        st.warning(f"[WARN] Could not load {kaggle_id}: {e}")
+        jd_dfs.append(pd.DataFrame())
+    if not any([not df.empty for df in jd_dfs]):
+      local_files = glob.glob(os.path.join(self.jd_dir, "jd_final_*.csv"))
+      for f in local_files:
+        try:
+          df = pd.read_csv(f)
+          jd_dfs.append(df)
+        except:
+          pass
+    if all([df.empty for df in jd_dfs]):
+      st.warning("[WARN] No JD datasets could be found or downloaded.")
+    if all([df.empty for df in resume_dfs]):
+      raise RuntimeError("No usable resume datasets found in training_data/training_resumes/")
+    if all([df.empty for df in jd_dfs]):
+      st.warning("[WARN] All JD datasets are empty!")
 
   def create_initial_dataset(self):
     """
